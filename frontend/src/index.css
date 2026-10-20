@@ -1,0 +1,12 @@
+@tailwind base; @tailwind components; @tailwind utilities;
+@layer components {
+  .card { @apply bg-white border border-slate-200 rounded-xl shadow-sm p-4; }
+  .btn { @apply inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium bg-brand text-white hover:bg-green-700 disabled:opacity-50; }
+  .btn-ghost { @apply btn bg-white text-navy border border-slate-300 hover:bg-slate-50; }
+  .input { @apply w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/40; }
+  .num { @apply text-right tabular-nums whitespace-nowrap; }
+  .lbl { @apply block text-xs font-medium text-slate-500 mb-1; }
+  .th { @apply text-left text-xs font-semibold uppercase text-slate-500 px-3 py-2 border-b; }
+  .td { @apply px-3 py-2 text-sm border-b border-slate-100; }
+}
+@media print { aside, .no-print { display: none !important; } }
