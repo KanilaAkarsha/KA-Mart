@@ -38,11 +38,17 @@ const nav = [
   ["/closing", "Daily Closing", ClipboardCheck],
   ["/settings", "Settings", Settings],
 ];
+const getUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem("kam_user") || "{}");
+  } catch {
+    return {};
+  }
+};
 export default function Layout() {
   const [open, setOpen] = useState(false);
   const go = useNavigate();
-  const isStaff =
-    JSON.parse(localStorage.getItem("kam_user") || "{}").role === "staff";
+  const isStaff = getUser().role === "staff";
   return (
     <div className="min-h-screen md:flex">
       <aside

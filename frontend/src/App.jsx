@@ -29,6 +29,13 @@ const tokenExpiry = (token) => {
     return null;
   }
 };
+const currentUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem("kam_user") || "{}");
+  } catch {
+    return {};
+  }
+};
 const Guard = ({ children }) => {
   const [expired, setExpired] = useState(false);
   const token = localStorage.getItem("kam_token");
@@ -40,13 +47,6 @@ const Guard = ({ children }) => {
       localStorage.removeItem("kam_token");
       localStorage.removeItem("kam_user");
       setExpired(true);
-    };
-    const currentUser = () => {
-      try {
-        return JSON.parse(localStorage.getItem("kam_user") || "{}");
-      } catch {
-        return {};
-      }
     };
     const delay = expiry - Date.now();
     if (delay <= 0) {

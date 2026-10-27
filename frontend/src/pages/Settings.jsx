@@ -7,13 +7,19 @@ const LISTS = [
   ["paymentMethods", "Payment methods"],
   ["salesChannels", "Sales channels"],
 ];
+const getUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem("kam_user") || "{}");
+  } catch {
+    return {};
+  }
+};
 export default function Settings() {
   const [s, setS] = useState(null);
   const [txt, setTxt] = useState({});
   const [pw, setPw] = useState({ current: "", next: "" });
   const [toast, show] = useToast();
-  const isAdmin =
-    JSON.parse(localStorage.getItem("kam_user") || "{}").role === "admin";
+  const isAdmin = getUser().role === "admin";
   useEffect(() => {
     api.get("/settings").then((r) => {
       setS(r.data);
