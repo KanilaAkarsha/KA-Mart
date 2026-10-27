@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'; import { Plus, Search, Pencil } from 'lucide-react'; import api, { errMsg } from '../api'; import { toMinor, isNum, ymd } from '../utils';
+import { useEffect, useMemo, useState } from 'react'; import { Plus, Search, Pencil } from 'lucide-react'; import api, { errMsg } from '../api'; import { toMinor, isNum, ymd, rs } from '../utils';
 export function useToast() { const [t, set] = useState(null); const show = (m, bad) => { set({ m, bad }); setTimeout(() => set(null), 4000); };
   return [t && <div className={`fixed top-4 right-4 z-50 px-4 py-2 rounded-lg text-white text-sm shadow ${t.bad ? 'bg-red-600' : 'bg-brand'}`}>{t.m}</div>, show]; }
 export function Field({ f, value, onChange, opts }) {
@@ -18,6 +18,7 @@ export default function DataPage({ title, endpoint, columns, fields, search = tr
     for (const f of fields) { const v = form[f.name]; if (v === '' || v == null) continue; body[f.name] = f.type === 'money' ? toMinor(v) : f.type === 'number' ? Number(v) : v; }
     try { if (form._id) await api.put(`${endpoint}/${form._id}`, body); else await api.post(endpoint, body, { headers: { 'Idempotency-Key': crypto.randomUUID() } });
       show(form._id ? 'Changes saved' : 'Saved'); setForm(null); load(); } catch (er) { show(errMsg(er), true); } };
+  const sums = columns.map((c) => (c.total ? rows.reduce((a, r) => a + (Number(r[c.key]) || 0), 0) : null)); const fmtTotal = (c, v) => (c.total === 'int' ? v.toLocaleString('en-LK') : rs(v));
   const hasActions = rowActions || canEdit; const span = columns.length + (hasActions ? 1 : 0);
   return (<div>{toast}
     <div className="flex flex-wrap items-center justify-between gap-3 mb-4"><h1 className="text-2xl font-bold text-navy">{title}</h1>
@@ -26,7 +27,8 @@ export default function DataPage({ title, endpoint, columns, fields, search = tr
     <div className="card overflow-x-auto p-0"><table className="w-full"><thead><tr>{columns.map((c) => <th key={c.key} className={`th cursor-pointer select-none ${isNum(c.label) ? 'num' : ''}`} onClick={() => setSort(c.key)}>{c.label}</th>)}{hasActions && <th className="th text-right">Actions</th>}</tr></thead>
       <tbody>{loading ? <tr><td className="td" colSpan={span}>Loading…</td></tr> : !pageRows.length ? <tr><td className="td text-slate-500 text-center py-8" colSpan={span}>Nothing here yet.</td></tr> :
         pageRows.map((r) => <tr key={r._id} className="hover:bg-slate-50">{columns.map((c) => <td key={c.key} className={`td ${isNum(c.label) ? 'num' : ''}`}>{c.render ? c.render(r) : r[c.key]}</td>)}
-          {hasActions && <td className="td"><div className="flex flex-wrap justify-end gap-1">{canEdit && <button className="btn-ghost" onClick={() => edit(r)}><Pencil size={14} />Edit</button>}{rowActions && rowActions(r, load, show)}</div></td>}</tr>)}</tbody></table></div>
+          {hasActions && <td className="td"><div className="flex flex-wrap justify-end gap-1">{canEdit && <button className="btn-ghost" onClick={() => edit(r)}><Pencil size={14} />Edit</button>}{rowActions && rowActions(r, load, show)}</div></td>}</tr>)}</tbody>
+      {!loading && rows.length > 0 && columns.some((c) => c.total) && <tfoot><tr className="bg-slate-50 font-semibold text-navy">{columns.map((c, i) => <td key={c.key} className={`td border-t-2 border-slate-300 ${c.total ? 'num' : ''}`}>{i === 0 ? `Total (${rows.length})` : c.total ? fmtTotal(c, sums[i]) : ''}</td>)}{hasActions && <td className="td border-t-2 border-slate-300" />}</tr></tfoot>}</table></div>
     <div className="flex items-center justify-between mt-3 text-sm text-slate-500"><span>{rows.length} record{rows.length === 1 ? '' : 's'}</span><div className="flex gap-2"><button className="btn-ghost" disabled={!page} onClick={() => setPage(page - 1)}>Prev</button><button className="btn-ghost" disabled={(page + 1) * 15 >= rows.length} onClick={() => setPage(page + 1)}>Next</button></div></div>
     {form && <div className="fixed inset-0 bg-black/40 z-40 flex items-center justify-center p-4"><form onSubmit={save} className="card w-full max-w-lg max-h-[90vh] overflow-y-auto space-y-3"><h2 className="font-bold text-navy">{form._id ? 'Edit' : 'New'} {title.replace(/s$/, '')}</h2>
       <div className="grid sm:grid-cols-2 gap-3">{fields.map((f) => <label key={f.name} className={`block ${['description', 'address', 'notes'].includes(f.name) ? 'sm:col-span-2' : ''}`}><span className="lbl">{f.label}</span><Field f={f} opts={opts[f.name]} value={form[f.name]} onChange={(v) => setForm({ ...form, [f.name]: v })} /></label>)}</div>

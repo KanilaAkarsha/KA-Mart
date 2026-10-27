@@ -10,7 +10,7 @@ exports.Sale = model('Sale', new Schema({ invoice: { type: String, unique: true 
   lines: [{ product: ref('Product'), qty: Number, unitPrice: Number, cogs: Number }], subtotal: Number,
   discount: { type: Number, default: 0 }, charges: { type: Number, default: 0 }, total: Number, cogs: Number,
   paid: { type: Number, default: 0 }, status: { type: String, default: 'confirmed' }, paymentStatus: String, notes: String }, { timestamps: true }));
-exports.Account = model('Account', new Schema({ name: { type: String, unique: true }, type: String, opening: { type: Number, default: 0 } }));
+exports.Account = model('Account', new Schema({ name: { type: String, unique: true }, type: String, opening: { type: Number, default: 0 }, archived: { type: Boolean, default: false } }));
 exports.Ledger = model('FinancialTransaction', new Schema({ account: { ...ref('Account'), required: true }, type: { type: String, required: true },
   amount: { type: Number, required: true, min: 1 }, date: { type: Date, default: Date.now }, method: String, ref: String, reversed: { type: Boolean, default: false },
   key: { type: String, unique: true, sparse: true } }, { timestamps: true })); // key = idempotency, blocks duplicate payments

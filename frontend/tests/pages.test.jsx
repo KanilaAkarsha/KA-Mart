@@ -24,6 +24,10 @@ describe('pages render with real data', () => {
     await show('/sales'); const ret = screen.queryAllByText('Return')[0]; if (ret) { fireEvent.click(ret); expect(screen.getByText(/Return items/)).toBeTruthy(); } });
   it('purchases page has Delete button and Show deleted toggle', async () => { await show('/purchases'); expect(screen.getAllByText('Delete').length).toBeGreaterThan(0); expect(screen.getByText('Show deleted')).toBeTruthy(); });
   it('new purchase form has Scan bill, date and notes', async () => { await show('/purchases'); fireEvent.click(screen.getByText(/New purchase/)); expect(screen.getByText(/Scan bill/)).toBeTruthy(); expect(screen.getByText('Purchase date')).toBeTruthy(); expect(screen.getByText('Bill / invoice no.')).toBeTruthy(); expect(screen.getByText('Notes')).toBeTruthy(); });
+  it('accounts page has Delete; tables end with a Total row; dashboard shows net position', async () => {
+    await show('/accounts'); expect(screen.getAllByText('Delete').length).toBeGreaterThan(0); expect(screen.getAllByText(/^Total \(/).length).toBeGreaterThan(0);
+    for (const r of ['/products', '/inventory', '/customers', '/suppliers', '/expenses', '/sales', '/purchases', '/payables', '/reports']) { await show(r); expect(screen.getAllByText(/^(Total|Net cash)/).length, r).toBeGreaterThan(0); }
+    await show('/'); expect(screen.getByText('Net position')).toBeTruthy(); });
   it('statement opens for a customer', async () => { await show('/customers'); fireEvent.click(screen.getAllByText('Statement')[0]); await waitFor(() => expect(screen.getByText(/statement/i)).toBeTruthy()); });
   it('reports page loads another report and csv button exists', async () => { await show('/reports'); expect(screen.getByText('CSV')).toBeTruthy(); });
   it('unauthenticated user is sent to login', async () => { localStorage.removeItem('kam_token'); cleanup(); render(<MemoryRouter initialEntries={['/sales']}><App /></MemoryRouter>); await waitFor(() => expect(screen.getByText('Sign in')).toBeTruthy()); });
