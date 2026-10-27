@@ -1,15 +1,180 @@
-import { useEffect, useState } from 'react'; import { Download, Printer } from 'lucide-react'; import api, { errMsg } from '../api'; import { rs, presets } from '../utils';
-const NAMES = { sales: 'Sales', purchases: 'Purchases', expenses: 'Expenses', inventory: 'Inventory valuation', 'stock-movements': 'Stock movements', 'supplier-balances': 'Supplier balances', 'customer-balances': 'Customer balances', cashflow: 'Cash flow', accounts: 'Account balances',
-  'best-sellers': 'Best-selling products', 'slow-moving': 'Slow-moving inventory', 'by-category': 'Profit by category', 'by-channel': 'Profit by sales channel', 'by-product': 'Profit by product', monthly: 'Monthly business summary' };
-export default function Reports({ fixed }) { const P = presets(); const [name, setName] = useState(fixed || 'sales'); const [r, setR] = useState(P['This month']); const [d, setD] = useState(null); const [err, setErr] = useState('');
-  const qs = `from=${r[0]}&to=${r[1]}`; useEffect(() => { setD(null); setErr(''); api.get(`/reports/${name}?${qs}`).then((x) => setD(x.data)).catch((e) => setErr(errMsg(e))); }, [name, r]);
-  const csv = async () => { const x = await api.get(`/reports/${name}?${qs}&format=csv`, { responseType: 'blob' }); const a = document.createElement('a'); a.href = URL.createObjectURL(x.data); a.download = `${name}.csv`; a.click(); };
-  return (<div className="space-y-4"><div className="flex flex-wrap items-center gap-2 no-print"><h1 className="text-2xl font-bold text-navy mr-auto">{fixed ? NAMES[fixed] : 'Reports'}</h1>
-    {!fixed && <select className="input w-auto" value={name} onChange={(e) => setName(e.target.value)}>{Object.entries(NAMES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select>}
-    {Object.entries(P).map(([k, v]) => <button key={k} className={r === v ? 'btn' : 'btn-ghost'} onClick={() => setR(v)}>{k}</button>)}<input type="date" className="input w-auto" value={r[0]} onChange={(e) => setR([e.target.value, r[1]])} /><input type="date" className="input w-auto" value={r[1]} onChange={(e) => setR([r[0], e.target.value])} />
-    <button className="btn-ghost" onClick={csv}><Download size={14} />CSV</button><button className="btn-ghost" onClick={() => window.print()}><Printer size={14} />Print</button></div>
-    <div className="hidden print:block font-bold">KA Mart — {NAMES[name]} ({r[0]} to {r[1]})</div>{err && <div className="text-red-600 text-sm">{err}</div>}
-    <div className="card overflow-x-auto p-0">{!d ? <div className="p-4">Loading…</div> : <table className="w-full"><thead><tr>{d.columns.map((c) => <th key={c.key} className={`th ${c.money ? 'num' : ''}`}>{c.label}</th>)}</tr></thead><tbody>{!d.rows.length && <tr><td className="td text-slate-500" colSpan={d.columns.length}>No data for this report and period.</td></tr>}
-      {d.rows.map((x, i) => <tr key={x._id || i}>{d.columns.map((c) => <td key={c.key} className={`td ${c.money ? 'num' : ''}`}>{c.money ? rs(x[c.key] || 0) : x[c.key] ?? ''}</td>)}</tr>)}</tbody>
-      {d.rows.length > 0 && (() => { const cash = d.columns.some((c) => c.key === 'direction'); const sums = d.columns.map((c) => (/avg|unit cost/i.test(c.label) ? null : c.money || c.key === 'qty' ? d.rows.reduce((a, x) => a + (cash && c.key === 'amount' && x.direction === 'Out' ? -1 : 1) * (Number(x[c.key]) || 0), 0) : null));
-        return sums.some((v) => v != null) && <tfoot><tr className="bg-slate-50 font-semibold text-navy">{d.columns.map((c, i) => <td key={c.key} className={`td border-t-2 border-slate-300 ${sums[i] != null ? 'num' : ''}`}>{i === 0 ? (cash ? 'Net cash movement' : `Total (${d.rows.length})`) : sums[i] == null ? '' : c.money ? rs(sums[i]) : sums[i].toLocaleString('en-LK')}</td>)}</tr></tfoot>; })()}</table>}</div>{d?.note && <p className="text-xs text-slate-500">{d.note}</p>}</div>); }
+import { useEffect, useState } from "react";
+import { Download, Printer } from "lucide-react";
+import api, { errMsg } from "../api";
+import { rs, presets } from "../utils";
+const NAMES = {
+  sales: "Sales",
+  purchases: "Purchases",
+  expenses: "Expenses",
+  inventory: "Inventory valuation",
+  "stock-movements": "Stock movements",
+  "supplier-balances": "Supplier balances",
+  "customer-balances": "Customer balances",
+  cashflow: "Cash flow",
+  accounts: "Account balances",
+  "best-sellers": "Best-selling products",
+  "slow-moving": "Slow-moving inventory",
+  "by-category": "Profit by category",
+  "by-channel": "Profit by sales channel",
+  "by-product": "Profit by product",
+  monthly: "Monthly business summary",
+};
+export default function Reports({ fixed }) {
+  const P = presets();
+  const [name, setName] = useState(fixed || "sales");
+  const [r, setR] = useState(P["This month"]);
+  const [d, setD] = useState(null);
+  const [err, setErr] = useState("");
+  const qs = `from=${r[0]}&to=${r[1]}`;
+  useEffect(() => {
+    setD(null);
+    setErr("");
+    api
+      .get(`/reports/${name}?${qs}`)
+      .then((x) => setD(x.data))
+      .catch((e) => setErr(errMsg(e)));
+  }, [name, r]);
+  const csv = async () => {
+    const x = await api.get(`/reports/${name}?${qs}&format=csv`, {
+      responseType: "blob",
+    });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(x.data);
+    a.download = `${name}.csv`;
+    a.click();
+  };
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2 no-print">
+        <h1 className="text-2xl font-bold text-navy mr-auto">
+          {fixed ? NAMES[fixed] : "Reports"}
+        </h1>
+        {!fixed && (
+          <select
+            className="input w-auto"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          >
+            {Object.entries(NAMES).map(([k, v]) => (
+              <option key={k} value={k}>
+                {v}
+              </option>
+            ))}
+          </select>
+        )}
+        {Object.entries(P).map(([k, v]) => (
+          <button
+            key={k}
+            className={r === v ? "btn" : "btn-ghost"}
+            onClick={() => setR(v)}
+          >
+            {k}
+          </button>
+        ))}
+        <input
+          type="date"
+          className="input w-auto"
+          value={r[0]}
+          onChange={(e) => setR([e.target.value, r[1]])}
+        />
+        <input
+          type="date"
+          className="input w-auto"
+          value={r[1]}
+          onChange={(e) => setR([r[0], e.target.value])}
+        />
+        <button className="btn-ghost" onClick={csv}>
+          <Download size={14} />
+          CSV
+        </button>
+        <button className="btn-ghost" onClick={() => window.print()}>
+          <Printer size={14} />
+          Print
+        </button>
+      </div>
+      <div className="hidden print:block font-bold">
+        KA Mart — {NAMES[name]} ({r[0]} to {r[1]})
+      </div>
+      {err && <div className="text-red-600 text-sm">{err}</div>}
+      <div className="card overflow-x-auto p-0">
+        {!d ? (
+          <div className="p-4">Loading…</div>
+        ) : (
+          <table className="w-full">
+            <thead>
+              <tr>
+                {d.columns.map((c) => (
+                  <th key={c.key} className={`th ${c.money ? "num" : ""}`}>
+                    {c.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {!d.rows.length && (
+                <tr>
+                  <td className="td text-slate-500" colSpan={d.columns.length}>
+                    No data for this report and period.
+                  </td>
+                </tr>
+              )}
+              {d.rows.map((x, i) => (
+                <tr key={x._id || i}>
+                  {d.columns.map((c) => (
+                    <td key={c.key} className={`td ${c.money ? "num" : ""}`}>
+                      {c.money ? rs(x[c.key] || 0) : (x[c.key] ?? "")}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+            {d.rows.length > 0 &&
+              (() => {
+                const cash = d.columns.some((c) => c.key === "direction");
+                const sums = d.columns.map((c) =>
+                  /avg|unit cost/i.test(c.label)
+                    ? null
+                    : c.money || c.key === "qty"
+                      ? d.rows.reduce(
+                          (a, x) =>
+                            a +
+                            (cash && c.key === "amount" && x.direction === "Out"
+                              ? -1
+                              : 1) *
+                              (Number(x[c.key]) || 0),
+                          0,
+                        )
+                      : null,
+                );
+                return (
+                  sums.some((v) => v != null) && (
+                    <tfoot>
+                      <tr className="bg-slate-50 font-semibold text-navy">
+                        {d.columns.map((c, i) => (
+                          <td
+                            key={c.key}
+                            className={`td border-t-2 border-slate-300 ${sums[i] != null ? "num" : ""}`}
+                          >
+                            {i === 0
+                              ? cash
+                                ? "Net cash movement"
+                                : `Total (${d.rows.length})`
+                              : sums[i] == null
+                                ? ""
+                                : c.money
+                                  ? rs(sums[i])
+                                  : sums[i].toLocaleString("en-LK")}
+                          </td>
+                        ))}
+                      </tr>
+                    </tfoot>
+                  )
+                );
+              })()}
+          </table>
+        )}
+      </div>
+      {d?.note && <p className="text-xs text-slate-500">{d.note}</p>}
+    </div>
+  );
+}

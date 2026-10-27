@@ -1,22 +1,206 @@
-import { useEffect, useState } from 'react'; import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, BarChart, Bar, ResponsiveContainer, CartesianGrid } from 'recharts';
-import api, { errMsg } from '../api'; import { rs, presets, ymd } from '../utils';
-const Card = ({ t, v, hint }) => <div className="card flex flex-col justify-between"><div className="text-xs text-slate-500">{t}</div><div className="text-lg sm:text-xl font-bold text-navy break-words">{v}</div>{hint && <div className="text-xs text-slate-400">{hint}</div>}</div>;
+import { useEffect, useState } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  BarChart,
+  Bar,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts";
+import api, { errMsg } from "../api";
+import { rs, presets, ymd } from "../utils";
+
+const Card = ({ t, v, hint }) => (
+  <div className="card flex flex-col justify-between">
+    <div className="text-xs text-slate-500">{t}</div>
+    <div className="text-lg sm:text-xl font-bold text-navy break-words">
+      {v}
+    </div>
+    {hint && <div className="text-xs text-slate-400">{hint}</div>}
+  </div>
+);
 export default function Dashboard() {
-  const P = presets(); const [range, setRange] = useState(P['This month']); const [d, setD] = useState(null); const [err, setErr] = useState('');
-  useEffect(() => { setD(null); api.get(`/reports/dashboard?from=${range[0]}&to=${range[1]}`).then((r) => setD(r.data)).catch((e) => setErr(errMsg(e))); }, [range]);
-  return (<div className="space-y-4"><div className="flex flex-wrap items-center gap-2"><h1 className="text-2xl font-bold text-navy mr-auto">Dashboard</h1>
-    {Object.entries(P).map(([k, v]) => <button key={k} className={range === v ? 'btn' : 'btn-ghost'} onClick={() => setRange(v)}>{k}</button>)}
-    <input type="date" className="input w-auto" value={range[0]} onChange={(e) => setRange([e.target.value, range[1]])} /><input type="date" className="input w-auto" value={range[1]} onChange={(e) => setRange([range[0], e.target.value])} /></div>
-    {err && <div className="text-red-600 text-sm">{err}</div>}{!d ? !err && <div>Loading…</div> : <>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 items-stretch"><Card t="Revenue (net sales)" v={rs(d.revenue)} hint="Billed, not cash" /><Card t="Cost of goods sold" v={rs(d.cogs)} /><Card t="Gross profit" v={rs(d.grossProfit)} /><Card t="Operating expenses" v={rs(d.opex)} />
-        <Card t="Net profit" v={rs(d.netProfit)} /><Card t="Cash in hand" v={rs(d.cashBalance)} /><Card t="Bank & other accounts" v={rs(d.bankBalance)} /><Card t="Inventory value (at cost)" v={rs(d.inventoryValue)} hint="Not profit" />
-        <Card t="Owed to suppliers" v={rs(d.supplierOutstanding)} /><Card t="Owed by customers" v={rs(d.customerOutstanding)} /><Card t="Products / low stock" v={`${d.totalProducts} / ${d.lowStock.length}`} /><Card t="Sales today / purchases today" v={`${rs(d.salesToday)} / ${rs(d.purchasesToday)}`} /></div>
-      <div className="grid lg:grid-cols-2 gap-3"><div className="card h-72"><div className="text-sm font-semibold mb-2">Sales vs expenses</div><ResponsiveContainer><LineChart data={d.series.map((s) => ({ ...s, sales: s.sales / 100, expenses: s.expenses / 100, profit: (s.sales - s.expenses) / 100 }))}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="date" fontSize={11} /><YAxis fontSize={11} /><Tooltip /><Legend />
-        <Line dataKey="sales" stroke="#0f2a52" dot={false} /><Line dataKey="expenses" stroke="#dc2626" dot={false} /><Line dataKey="profit" name="sales − expenses" stroke="#16a34a" dot={false} /></LineChart></ResponsiveContainer></div>
-        <div className="card h-72"><div className="text-sm font-semibold mb-2">Best-selling products (units)</div><ResponsiveContainer><BarChart data={d.bestSellers}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" fontSize={11} /><YAxis fontSize={11} allowDecimals={false} /><Tooltip /><Bar dataKey="qty" fill="#16a34a" /></BarChart></ResponsiveContainer></div></div>
-      {!!d.lowStock.length && <div className="card"><div className="font-semibold text-sm mb-2">Low stock</div>{d.lowStock.map((p) => <div key={p._id} className="text-sm">{p.name} — {p.qty} left</div>)}</div>}<div className="card"><div className="font-semibold text-navy mb-2">Business position today</div>
-        {[['Cash in hand', d.cashBalance], ['Bank & other accounts', d.bankBalance], ['Inventory (at cost)', d.inventoryValue], ['Customers owe you', d.customerOutstanding]].map(([l, v]) => <div key={l} className="flex justify-between text-sm py-1 border-b border-slate-100"><span>{l}</span><span className="tabular-nums">{rs(v)}</span></div>)}
-        <div className="flex justify-between text-sm py-1 border-b border-slate-100 font-semibold"><span>Total assets</span><span className="tabular-nums">{rs(d.cashBalance + d.bankBalance + d.inventoryValue + d.customerOutstanding)}</span></div>
-        <div className="flex justify-between text-sm py-1 border-b border-slate-100"><span>− You owe suppliers</span><span className="tabular-nums">{rs(d.supplierOutstanding)}</span></div>
-        <div className="flex justify-between py-2 font-bold text-navy"><span>Net position</span><span className="tabular-nums">{rs(d.cashBalance + d.bankBalance + d.inventoryValue + d.customerOutstanding - d.supplierOutstanding)}</span></div>
-        <p className="text-xs text-slate-500">A snapshot of what the business holds minus what it owes. It is not profit.</p></div></>}</div>); }
+  const P = presets();
+  const [range, setRange] = useState(P["This month"]);
+  const [d, setD] = useState(null);
+  const [err, setErr] = useState("");
+  useEffect(() => {
+    setD(null);
+    api
+      .get(`/reports/dashboard?from=${range[0]}&to=${range[1]}`)
+      .then((r) => setD(r.data))
+      .catch((e) => setErr(errMsg(e)));
+  }, [range]);
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <h1 className="text-2xl font-bold text-navy mr-auto">Dashboard</h1>
+        {Object.entries(P).map(([k, v]) => (
+          <button
+            key={k}
+            className={range === v ? "btn" : "btn-ghost"}
+            onClick={() => setRange(v)}
+          >
+            {k}
+          </button>
+        ))}
+        <input
+          type="date"
+          className="input w-auto"
+          value={range[0]}
+          onChange={(e) => setRange([e.target.value, range[1]])}
+        />
+        <input
+          type="date"
+          className="input w-auto"
+          value={range[1]}
+          onChange={(e) => setRange([range[0], e.target.value])}
+        />
+      </div>
+      {err && <div className="text-red-600 text-sm">{err}</div>}
+      {!d ? (
+        !err && <div>Loading…</div>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 items-stretch">
+            <Card
+              t="Revenue (net sales)"
+              v={rs(d.revenue)}
+              hint="Billed, not cash"
+            />
+            <Card t="Cost of goods sold" v={rs(d.cogs)} />
+            <Card t="Gross profit" v={rs(d.grossProfit)} />
+            <Card t="Operating expenses" v={rs(d.opex)} />
+            <Card t="Net profit" v={rs(d.netProfit)} />
+            <Card t="Cash in hand" v={rs(d.cashBalance)} />
+            <Card t="Bank & other accounts" v={rs(d.bankBalance)} />
+            <Card
+              t="Inventory value (at cost)"
+              v={rs(d.inventoryValue)}
+              hint="Not profit"
+            />
+            <Card t="Owed to suppliers" v={rs(d.supplierOutstanding)} />
+            <Card t="Owed by customers" v={rs(d.customerOutstanding)} />
+            <Card
+              t="Products / low stock"
+              v={`${d.totalProducts} / ${d.lowStock.length}`}
+            />
+            <Card
+              t="Sales today / purchases today"
+              v={`${rs(d.salesToday)} / ${rs(d.purchasesToday)}`}
+            />
+          </div>
+          <div className="grid lg:grid-cols-2 gap-3">
+            <div className="card h-72">
+              <div className="text-sm font-semibold mb-2">
+                Sales vs expenses
+              </div>
+              <ResponsiveContainer>
+                <LineChart
+                  data={d.series.map((s) => ({
+                    ...s,
+                    sales: s.sales / 100,
+                    expenses: s.expenses / 100,
+                    profit: (s.sales - s.expenses) / 100,
+                  }))}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" fontSize={11} />
+                  <YAxis fontSize={11} />
+                  <Tooltip />
+                  <Legend />
+                  <Line dataKey="sales" stroke="#0f2a52" dot={false} />
+                  <Line dataKey="expenses" stroke="#dc2626" dot={false} />
+                  <Line
+                    dataKey="profit"
+                    name="sales − expenses"
+                    stroke="#16a34a"
+                    dot={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="card h-72">
+              <div className="text-sm font-semibold mb-2">
+                Best-selling products (units)
+              </div>
+              <ResponsiveContainer>
+                <BarChart data={d.bestSellers}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" fontSize={11} />
+                  <YAxis fontSize={11} allowDecimals={false} />
+                  <Tooltip />
+                  <Bar dataKey="qty" fill="#16a34a" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          {!!d.lowStock.length && (
+            <div className="card">
+              <div className="font-semibold text-sm mb-2">Low stock</div>
+              {d.lowStock.map((p) => (
+                <div key={p._id} className="text-sm">
+                  {p.name} — {p.qty} left
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="card">
+            <div className="font-semibold text-navy mb-2">
+              Business position today
+            </div>
+            {[
+              ["Cash in hand", d.cashBalance],
+              ["Bank & other accounts", d.bankBalance],
+              ["Inventory (at cost)", d.inventoryValue],
+              ["Customers owe you", d.customerOutstanding],
+            ].map(([l, v]) => (
+              <div
+                key={l}
+                className="flex justify-between text-sm py-1 border-b border-slate-100"
+              >
+                <span>{l}</span>
+                <span className="tabular-nums">{rs(v)}</span>
+              </div>
+            ))}
+            <div className="flex justify-between text-sm py-1 border-b border-slate-100 font-semibold">
+              <span>Total assets</span>
+              <span className="tabular-nums">
+                {rs(
+                  d.cashBalance +
+                    d.bankBalance +
+                    d.inventoryValue +
+                    d.customerOutstanding,
+                )}
+              </span>
+            </div>
+            <div className="flex justify-between text-sm py-1 border-b border-slate-100">
+              <span>− You owe suppliers</span>
+              <span className="tabular-nums">{rs(d.supplierOutstanding)}</span>
+            </div>
+            <div className="flex justify-between py-2 font-bold text-navy">
+              <span>Net position</span>
+              <span className="tabular-nums">
+                {rs(
+                  d.cashBalance +
+                    d.bankBalance +
+                    d.inventoryValue +
+                    d.customerOutstanding -
+                    d.supplierOutstanding,
+                )}
+              </span>
+            </div>
+            <p className="text-xs text-slate-500">
+              A snapshot of what the business holds minus what it owes. It is
+              not profit.
+            </p>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
