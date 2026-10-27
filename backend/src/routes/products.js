@@ -2,6 +2,7 @@ const r = require("express").Router();
 const { z } = require("zod");
 const Product = require("../models/Product");
 const { StockMovement } = require("../models/Trade");
+const { adminOnly } = require("../middleware/auth");
 const multer = require("multer"),
   path = require("path"),
   fs = require("fs"),
@@ -64,12 +65,14 @@ r.get(
 );
 r.post(
   "/",
+  adminOnly,
   wrap(async (req, res) =>
     res.status(201).json(await Product.create(body.parse(req.body))),
   ),
 );
 r.put(
   "/:id",
+  adminOnly,
   wrap(async (req, res) =>
     res.json(
       await Product.findByIdAndUpdate(
@@ -82,6 +85,7 @@ r.put(
 );
 r.post(
   "/:id/adjust",
+  adminOnly,
   wrap(async (req, res) => {
     // damaged/lost/found: value moves at average cost
     const { qty, reason } = z
@@ -121,6 +125,7 @@ r.get(
 );
 r.post(
   "/:id([0-9a-f]{24})/image",
+  adminOnly,
   up.single("image"),
   wrap(async (req, res) => {
     // type checked by file signature, random name, 2 MB cap

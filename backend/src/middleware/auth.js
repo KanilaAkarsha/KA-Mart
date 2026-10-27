@@ -12,3 +12,7 @@ exports.adminOnly = (req, res, next) =>
   req.user.role === "admin"
     ? next()
     : res.status(403).json({ error: "Admin only" });
+exports.staffOrAdmin = (req, res, next) =>
+  ["admin", "staff"].includes(req.user.role)
+    ? next()
+    : res.status(403).json({ error: "Invalid user role" });

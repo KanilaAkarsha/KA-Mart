@@ -10,7 +10,7 @@ const Lbl = ({ t, children, cls = "" }) => (
   </label>
 );
 // kind = 'sales' | 'purchases'. Sales choose the price per line; the product's default price is only a suggestion.
-export default function TradePage({ kind }) {
+export default function TradePage({ kind, staff = false }) {
   const sale = kind === "sales";
   const [rows, setRows] = useState([]);
   const [prods, setProds] = useState([]);
@@ -372,7 +372,7 @@ export default function TradePage({ kind }) {
                         Delete
                       </button>
                     )}
-                    {sale && r.status !== "cancelled" && (
+                    {sale && !staff && r.status !== "cancelled" && (
                       <button
                         className="btn-ghost"
                         onClick={() =>
@@ -388,7 +388,7 @@ export default function TradePage({ kind }) {
                         Return
                       </button>
                     )}
-                    {sale && r.status !== "cancelled" && (
+                    {sale && !staff && r.status !== "cancelled" && (
                       <button
                         className="btn-ghost"
                         onClick={() =>

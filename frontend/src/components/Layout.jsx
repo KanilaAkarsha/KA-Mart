@@ -41,6 +41,8 @@ const nav = [
 export default function Layout() {
   const [open, setOpen] = useState(false);
   const go = useNavigate();
+  const isStaff =
+    JSON.parse(localStorage.getItem("kam_user") || "{}").role === "staff";
   return (
     <div className="min-h-screen md:flex">
       <aside
@@ -55,20 +57,24 @@ export default function Layout() {
           </div>
         </div>
         <nav className="px-2 space-y-1">
-          {nav.map(([to, label, Icon]) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={to === "/"}
-              onClick={() => setOpen(false)}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2 rounded-lg text-sm ${isActive ? "bg-brand text-white" : "text-slate-200 hover:bg-white/10"}`
-              }
-            >
-              <Icon size={18} />
-              {label}
-            </NavLink>
-          ))}
+          {nav
+            .filter(
+              ([to]) => !isStaff || ["/", "/products", "/sales"].includes(to),
+            )
+            .map(([to, label, Icon]) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={to === "/"}
+                onClick={() => setOpen(false)}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2 rounded-lg text-sm ${isActive ? "bg-brand text-white" : "text-slate-200 hover:bg-white/10"}`
+                }
+              >
+                <Icon size={18} />
+                {label}
+              </NavLink>
+            ))}
         </nav>
         <button
           onClick={() => {

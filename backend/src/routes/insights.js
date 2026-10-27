@@ -80,39 +80,65 @@ r.get(
         ),
       );
     res.json({
-      ...pnl,
-      revenue: pnl.netSales,
-      cashBalance: bal
-        .filter((a) => a.type === "cash")
-        .reduce((a, b) => a + b.balance, 0),
-      bankBalance: bal
-        .filter((a) => a.type !== "cash")
-        .reduce((a, b) => a + b.balance, 0),
-      inventoryValue: A.inventoryValue(prods),
-      supplierOutstanding: purchases.reduce((a, p) => a + p.total - p.paid, 0),
-      customerOutstanding: allSales
-        .filter((s) => s.status !== "cancelled")
-        .reduce((a, s) => a + s.total - s.paid, 0),
-      totalProducts: prods.length,
-      lowStock: prods
-        .filter((p) => p.qty <= p.minStock)
-        .map((p) => ({ _id: p._id, name: p.name, qty: p.qty })),
-      salesToday: allSales
-        .filter((s) => s.status !== "cancelled" && day(s.date) === today)
-        .reduce((a, s) => a + s.total, 0),
-      purchasesToday: purchases
-        .filter((p) => day(p.date) === today)
-        .reduce((a, p) => a + p.total, 0),
-      series: Object.values(series).sort((a, b) =>
-        a.date.localeCompare(b.date),
-      ),
-      bestSellers: Object.entries(sold)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
-        .map(([p, q]) => ({
-          name: prods.find((x) => String(x._id) === p)?.name,
-          qty: q,
-        })),
+      ...(req.user.role === "staff"
+        ? {
+            revenue: pnl.netSales,
+            totalProducts: prods.length,
+            lowStock: prods
+              .filter((p) => p.qty <= p.minStock)
+              .map((p) => ({ _id: p._id, name: p.name, qty: p.qty })),
+            salesToday: allSales
+              .filter((s) => s.status !== "cancelled" && day(s.date) === today)
+              .reduce((a, s) => a + s.total, 0),
+            series: Object.values(series).sort((a, b) =>
+              a.date.localeCompare(b.date),
+            ),
+            bestSellers: Object.entries(sold)
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 5)
+              .map(([p, q]) => ({
+                name: prods.find((x) => String(x._id) === p)?.name,
+                qty: q,
+              })),
+          }
+        : {
+            ...pnl,
+            revenue: pnl.netSales,
+            cashBalance: bal
+              .filter((a) => a.type === "cash")
+              .reduce((a, b) => a + b.balance, 0),
+            bankBalance: bal
+              .filter((a) => a.type !== "cash")
+              .reduce((a, b) => a + b.balance, 0),
+            inventoryValue: A.inventoryValue(prods),
+            supplierOutstanding: purchases.reduce(
+              (a, p) => a + p.total - p.paid,
+              0,
+            ),
+            customerOutstanding: allSales
+              .filter((s) => s.status !== "cancelled")
+              .reduce((a, s) => a + s.total - s.paid, 0),
+            totalProducts: prods.length,
+            lowStock: prods
+              .filter((p) => p.qty <= p.minStock)
+              .map((p) => ({ _id: p._id, name: p.name, qty: p.qty })),
+            salesToday: allSales
+              .filter((s) => s.status !== "cancelled" && day(s.date) === today)
+              .reduce((a, s) => a + s.total, 0),
+            purchasesToday: purchases
+              .filter((p) => day(p.date) === today)
+              .reduce((a, p) => a + p.total, 0),
+            series: Object.values(series).sort((a, b) =>
+              a.date.localeCompare(b.date),
+            ),
+            bestSellers: Object.entries(sold)
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 5)
+              .map(([p, q]) => ({
+                name: prods.find((x) => String(x._id) === p)?.name,
+                qty: q,
+              })),
+          }),
     });
   }),
 );

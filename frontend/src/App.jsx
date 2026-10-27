@@ -19,6 +19,7 @@ import Pnl from "./pages/Pnl";
 import Closing from "./pages/Closing";
 import Accounts from "./pages/Accounts";
 import Loans from "./pages/Loans";
+import StaffDashboard from "./pages/StaffDashboard";
 import { rs, ymd, imgUrl } from "./utils";
 const tokenExpiry = (token) => {
   try {
@@ -39,6 +40,13 @@ const Guard = ({ children }) => {
       localStorage.removeItem("kam_token");
       localStorage.removeItem("kam_user");
       setExpired(true);
+    };
+    const currentUser = () => {
+      try {
+        return JSON.parse(localStorage.getItem("kam_user") || "{}");
+      } catch {
+        return {};
+      }
     };
     const delay = expiry - Date.now();
     if (delay <= 0) {
@@ -69,6 +77,7 @@ const pf = [
   { name: "notes", label: "Notes" },
 ];
 export default function App() {
+  const staff = currentUser().role === "staff";
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
@@ -87,7 +96,7 @@ export default function App() {
           </Guard>
         }
       >
-        <Route index element={<Dashboard />} />
+        <Route index element={staff ? <StaffDashboard /> : <Dashboard />} />
         <Route
           path="products"
           element={
@@ -124,36 +133,43 @@ export default function App() {
                 },
                 { key: "qty", label: "Stock", total: "int" },
               ]}
-              fields={[
-                { name: "name", label: "Name" },
-                { name: "sku", label: "SKU" },
-                {
-                  name: "category",
-                  label: "Category",
-                  type: "select",
-                  setting: "productCategories",
-                },
-                { name: "brand", label: "Brand" },
-                { name: "compatibility", label: "Model / compatibility" },
-                {
-                  name: "sellingPrice",
-                  label: "Selling price (Rs.)",
-                  type: "money",
-                },
-                {
-                  name: "studentPrice",
-                  label: "Student price (Rs.)",
-                  type: "money",
-                },
-                {
-                  name: "minStock",
-                  label: "Low-stock alert at",
-                  type: "number",
-                },
-              ]}
-              rowActions={(r, load, show) => (
-                <ProductImage row={r} reload={load} show={show} />
-              )}
+              fields={
+                staff
+                  ? []
+                  : [
+                      { name: "name", label: "Name" },
+                      { name: "sku", label: "SKU" },
+                      {
+                        name: "category",
+                        label: "Category",
+                        type: "select",
+                        setting: "productCategories",
+                      },
+                      { name: "brand", label: "Brand" },
+                      { name: "compatibility", label: "Model / compatibility" },
+                      {
+                        name: "sellingPrice",
+                        label: "Selling price (Rs.)",
+                        type: "money",
+                      },
+                      {
+                        name: "studentPrice",
+                        label: "Student price (Rs.)",
+                        type: "money",
+                      },
+                      {
+                        name: "minStock",
+                        label: "Low-stock alert at",
+                        type: "number",
+                      },
+                    ]
+              }
+              rowActions={
+                !staff &&
+                ((r, load, show) => (
+                  <ProductImage row={r} reload={load} show={show} />
+                ))
+              }
             />
           }
         />
@@ -210,8 +226,13 @@ export default function App() {
             />
           }
         />
-        <Route path="purchases" element={<TradePage kind="purchases" />} />
-        <Route path="sales" element={<TradePage kind="sales" />} />
+        {!staff && (
+          <Route path="purchases" element={<TradePage kind="purchases" />} />
+        )}
+        <Route
+          path="sales"
+          element={<TradePage kind="sales" staff={staff} />}
+        />
         <Route
           path="customers"
           element={
@@ -282,14 +303,15 @@ export default function App() {
             />
           }
         />
-        <Route path="accounts" element={<Accounts />} />
-        <Route path="loans" element={<Loans />} />
+        {!staff && <Route path="accounts" element={<Accounts />} />}
+        {!staff && <Route path="loans" element={<Loans />} />}
         <Route path="payables" element={<Payables />} />
         <Route path="reports" element={<Reports />} />
         <Route path="cashflow" element={<Reports fixed="cashflow" />} />
-        <Route path="settings" element={<Settings />} />
-        <Route path="pnl" element={<Pnl />} />
-        <Route path="closing" element={<Closing />} />
+        {!staff && <Route path="settings" element={<Settings />} />}
+        {!staff && <Route path="pnl" element={<Pnl />} />}
+        {!staff && <Route path="closing" element={<Closing />} />}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
   );
