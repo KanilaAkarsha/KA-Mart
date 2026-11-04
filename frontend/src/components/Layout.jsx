@@ -50,7 +50,9 @@ const getUser = () => {
 export default function Layout() {
   const [open, setOpen] = useState(false);
   const go = useNavigate();
-  const isStaff = getUser().role === "staff";
+  const user = getUser();
+  const isStaff = user.role === "staff";
+  const cashierAllowed = !isStaff || user.cashierAccess !== false;
   return (
     <div className="min-h-screen md:flex">
       <aside
@@ -68,7 +70,9 @@ export default function Layout() {
           {nav
             .filter(
               ([to]) =>
-                !isStaff || ["/", "/products", "/sales", "/cashier"].includes(to),
+                !isStaff ||
+                ["/", "/products"].includes(to) ||
+                (["/sales", "/cashier"].includes(to) && cashierAllowed),
             )
             .map(([to, label, Icon]) => (
               <NavLink

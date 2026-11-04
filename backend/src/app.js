@@ -24,6 +24,7 @@ app.use(
 );
 app.get("/api/health", (_, res) => res.json({ ok: true }));
 app.use("/api/products", auth, require("./routes/products"));
+app.use("/api/users", auth, require("./routes/users"));
 const adminOnly = (req, res, next) =>
   req.user.role === "admin"
     ? next()

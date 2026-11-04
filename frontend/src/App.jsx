@@ -78,7 +78,9 @@ const pf = [
   { name: "notes", label: "Notes" },
 ];
 export default function App() {
-  const staff = currentUser().role === "staff";
+  const user = currentUser();
+  const staff = user.role === "staff";
+  const cashierAllowed = !staff || user.cashierAccess !== false;
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
@@ -245,11 +247,23 @@ export default function App() {
         )}
         <Route
           path="sales"
-          element={<TradePage kind="sales" staff={staff} />}
+          element={
+            cashierAllowed ? (
+              <TradePage kind="sales" staff={staff} />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
         />
         <Route
           path="cashier"
-          element={<TradePage kind="sales" staff cashier />}
+          element={
+            cashierAllowed ? (
+              <TradePage kind="sales" staff cashier />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
         />
         <Route
           path="customers"

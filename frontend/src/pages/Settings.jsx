@@ -18,6 +18,7 @@ export default function Settings() {
   const [s, setS] = useState(null);
   const [txt, setTxt] = useState({});
   const [pw, setPw] = useState({ current: "", next: "" });
+  const [users, setUsers] = useState([]);
   const [toast, show] = useToast();
   const isAdmin = getUser().role === "admin";
   useEffect(() => {
@@ -29,7 +30,19 @@ export default function Settings() {
         ),
       );
     });
+    if (isAdmin) api.get("/users").then((r) => setUsers(r.data));
   }, []);
+  const setCashierAccess = async (user, enabled) => {
+    try {
+      const r = await api.put(`/users/${user._id}`, {
+        cashierAccess: enabled,
+      });
+      setUsers((all) => all.map((x) => (x._id === r.data._id ? r.data : x)));
+      show(`${user.name}'s cashier access ${enabled ? "enabled" : "disabled"}`);
+    } catch (e) {
+      show(errMsg(e), true);
+    }
+  };
   const save = async (e) => {
     e.preventDefault();
     const lists = Object.fromEntries(
@@ -137,6 +150,40 @@ export default function Settings() {
         </div>
         <button className="btn">Save settings</button>
       </form>
+      {isAdmin && (
+        <div className="card space-y-3">
+          <div className="font-semibold">Cashier access</div>
+          <p className="text-xs text-slate-500">
+            Control which staff members can open Cashier and create sales.
+            Admin access is always enabled.
+          </p>
+          {!users.length ? (
+            <div className="text-sm text-slate-500">No staff users found.</div>
+          ) : (
+            users
+              .filter((u) => u.role === "staff")
+              .map((u) => (
+                <label
+                  key={u._id}
+                  className="flex items-center justify-between border-b py-2 text-sm"
+                >
+                  <span>
+                    <b>{u.name}</b>
+                    <span className="text-slate-500 ml-2">{u.email}</span>
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <span>{u.cashierAccess === false ? "Disabled" : "Enabled"}</span>
+                    <input
+                      type="checkbox"
+                      checked={u.cashierAccess !== false}
+                      onChange={(e) => setCashierAccess(u, e.target.checked)}
+                    />
+                  </span>
+                </label>
+              ))
+          )}
+        </div>
+      )}
       <form onSubmit={change} className="card space-y-3">
         <div className="font-semibold">Change password</div>
         <div className="grid sm:grid-cols-2 gap-3">

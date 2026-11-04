@@ -1,6 +1,7 @@
 const r = require("express").Router();
 const { z } = require("zod");
 const { Sale } = require("../models/Trade");
+const User = require("../models/User");
 const S = require("../services/saleService");
 const { adminOnly } = require("../middleware/auth");
 const wrap = (f) => (q, s, n) => f(q, s, n).catch(n);
@@ -46,15 +47,20 @@ r.get(
 );
 r.post(
   "/",
-  wrap(async (req, res) =>
+  wrap(async (req, res) => {
+    if (req.user.role !== "admin") {
+      const user = await User.findById(req.user.id).select("cashierAccess");
+      if (!user || user.cashierAccess === false)
+        return res.status(403).json({ error: "Cashier access is disabled" });
+    }
     res.status(201).json(
       await S.createSale(body.parse(req.body), {
         key: req.headers["idempotency-key"],
         allowNegative:
           req.user.role === "admin" && req.query.allowNegative === "1",
       }),
-    ),
-  ),
+    );
+  }),
 );
 r.post(
   "/:id/payments",

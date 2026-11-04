@@ -21,7 +21,7 @@ r.post(
       token: jwt.sign({ id: u._id, role: u.role }, process.env.JWT_SECRET, {
         expiresIn: `${sessionTimeoutHours}h`,
       }),
-      user: { name: u.name, role: u.role },
+      user: { name: u.name, role: u.role, cashierAccess: u.cashierAccess !== false },
     });
   }),
 );
