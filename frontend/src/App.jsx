@@ -21,6 +21,7 @@ import Closing from "./pages/Closing";
 import Accounts from "./pages/Accounts";
 import Loans from "./pages/Loans";
 import StaffDashboard from "./pages/StaffDashboard";
+import Cashier from "./pages/Cashier";
 import { rs, ymd, imgUrl } from "./utils";
 const tokenExpiry = (token) => {
   try {
@@ -259,7 +260,7 @@ export default function App() {
           path="cashier"
           element={
             cashierAllowed ? (
-              <TradePage kind="sales" staff cashier />
+              <Cashier />
             ) : (
               <Navigate to="/" replace />
             )
