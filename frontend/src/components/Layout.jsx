@@ -72,7 +72,8 @@ export default function Layout() {
               ([to]) =>
                 !isStaff ||
                 ["/", "/products"].includes(to) ||
-                (["/sales", "/cashier"].includes(to) && cashierAllowed),
+                (["/sales"].includes(to) && cashierAllowed) ||
+                (to === "/cashier" && !isStaff),
             )
             .map(([to, label, Icon]) => (
               <NavLink

@@ -1,128 +1,137 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import api, { errMsg } from "../api";
-import { rs, ymd } from "../utils";
 
-const IN = new Set(["sale_receipt", "customer_payment", "transfer_in"]);
-const OUT = new Set([
-  "expense",
-  "expense_reversal",
-  "supplier_payment",
-  "transfer_out",
-  "customer_refund",
-  "supplier_refund",
-]);
+const blank = { name: "", email: "", password: "" };
 
 export default function Cashier() {
-  const [accounts, setAccounts] = useState([]);
-  const [accountId, setAccountId] = useState("");
-  const [transactions, setTransactions] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [form, setForm] = useState(blank);
   const [error, setError] = useState("");
-  const today = ymd(new Date());
+  const [message, setMessage] = useState("");
 
-  useEffect(() => {
+  const load = () =>
     api
-      .get("/accounts")
-      .then((r) => {
-        const cash = r.data.filter((a) => a.type === "cash");
-        const available = cash.length ? cash : r.data;
-        setAccounts(available);
-        setAccountId(available[0]?._id || "");
-      })
+      .get("/users")
+      .then((r) => setUsers(r.data.filter((u) => u.role === "staff")))
       .catch((e) => setError(errMsg(e)));
+  useEffect(() => {
+    load();
   }, []);
 
-  useEffect(() => {
-    if (!accountId) return;
-    api
-      .get(`/accounts/${accountId}/transactions`)
-      .then((r) => setTransactions(r.data))
-      .catch((e) => setError(errMsg(e)));
-  }, [accountId]);
+  const create = async (e) => {
+    e.preventDefault();
+    setError("");
+    setMessage("");
+    try {
+      await api.post("/users", form);
+      setForm(blank);
+      setMessage("Cashier created");
+      load();
+    } catch (e) {
+      setError(errMsg(e));
+    }
+  };
 
-  const account = accounts.find((a) => a._id === accountId);
-  const todayTransactions = useMemo(
-    () => transactions.filter((t) => ymd(t.date) === today),
-    [transactions, today],
-  );
-  const total = (types) =>
-    todayTransactions
-      .filter((t) => types.has(t.type))
-      .reduce((sum, t) => sum + t.amount, 0);
-  const cashIn = total(IN);
-  const cashOut = total(OUT);
+  const toggle = async (user) => {
+    try {
+      const r = await api.put(`/users/${user._id}`, {
+        cashierAccess: user.cashierAccess === false,
+      });
+      setUsers((all) => all.map((x) => (x._id === r.data._id ? r.data : x)));
+    } catch (e) {
+      setError(errMsg(e));
+    }
+  };
+
+  const remove = async (user) => {
+    if (!window.confirm(`Delete cashier "${user.name}"?`)) return;
+    try {
+      await api.delete(`/users/${user._id}`);
+      setUsers((all) => all.filter((x) => x._id !== user._id));
+      setMessage("Cashier deleted");
+    } catch (e) {
+      setError(errMsg(e));
+    }
+  };
 
   return (
-    <div className="space-y-4">
+    <div className="max-w-3xl space-y-4">
+      <h1 className="text-2xl font-bold text-navy">Cashiers</h1>
       {error && <div className="text-sm text-red-600">{error}</div>}
-      <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-bold text-navy mr-auto">Cashier account</h1>
-        <Link className="btn" to="/sales">
-          Open sales billing
-        </Link>
-      </div>
-      <div className="card">
-        <label className="block max-w-sm">
-          <span className="lbl">Cashier account</span>
-          <select
-            className="input"
-            value={accountId}
-            onChange={(e) => setAccountId(e.target.value)}
-          >
-            {!accounts.length && <option value="">No accounts available</option>}
-            {accounts.map((a) => (
-              <option key={a._id} value={a._id}>
-                {a.name}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="card">
-          <div className="text-xs text-slate-500">Current balance</div>
-          <div className="text-xl font-bold text-navy">
-            {rs(account?.balance || 0)}
-          </div>
+      {message && <div className="text-sm text-green-700">{message}</div>}
+      <form className="card space-y-3" onSubmit={create}>
+        <div className="font-semibold">Create cashier</div>
+        <div className="grid sm:grid-cols-3 gap-3">
+          <label>
+            <span className="lbl">Name</span>
+            <input
+              className="input"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              required
+            />
+          </label>
+          <label>
+            <span className="lbl">Email</span>
+            <input
+              className="input"
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              required
+            />
+          </label>
+          <label>
+            <span className="lbl">Password (10+ characters)</span>
+            <input
+              className="input"
+              type="password"
+              minLength={10}
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              required
+            />
+          </label>
         </div>
-        <div className="card">
-          <div className="text-xs text-slate-500">Cash in today</div>
-          <div className="text-xl font-bold text-green-700">{rs(cashIn)}</div>
-        </div>
-        <div className="card">
-          <div className="text-xs text-slate-500">Cash out today</div>
-          <div className="text-xl font-bold text-red-600">{rs(cashOut)}</div>
-        </div>
-      </div>
+        <button className="btn">Create cashier</button>
+      </form>
       <div className="card overflow-x-auto p-0">
-        <div className="p-4 font-semibold text-navy">
-          Today’s cashier transactions
-        </div>
+        <div className="p-4 font-semibold text-navy">Cashier users</div>
         <table className="w-full">
           <thead>
             <tr>
-              {["Time", "Type", "Reference", "Amount"].map((h) => (
-                <th key={h} className={`th ${h === "Amount" ? "num" : ""}`}>
+              {["Name", "Email", "Access", "Actions"].map((h) => (
+                <th key={h} className="th">
                   {h}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {!todayTransactions.length && (
+            {!users.length && (
               <tr>
                 <td className="td text-slate-500" colSpan={4}>
-                  No transactions today.
+                  No cashiers created.
                 </td>
               </tr>
             )}
-            {todayTransactions.map((t) => (
-              <tr key={t._id}>
-                <td className="td">{new Date(t.date).toLocaleTimeString()}</td>
-                <td className="td capitalize">{t.type.replaceAll("_", " ")}</td>
-                <td className="td">{t.ref || "—"}</td>
-                <td className={`td num ${IN.has(t.type) ? "text-green-700" : "text-red-600"}`}>
-                  {IN.has(t.type) ? "+" : "-"}{rs(t.amount)}
+            {users.map((user) => (
+              <tr key={user._id}>
+                <td className="td">{user.name}</td>
+                <td className="td">{user.email}</td>
+                <td className="td">
+                  {user.cashierAccess === false ? "Disabled" : "Enabled"}
+                </td>
+                <td className="td">
+                  <button className="btn-ghost mr-1" onClick={() => toggle(user)}>
+                    {user.cashierAccess === false ? "Enable" : "Disable"}
+                  </button>
+                  <button
+                    className="btn-ghost text-red-600"
+                    onClick={() => remove(user)}
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}

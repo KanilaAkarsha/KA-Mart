@@ -259,7 +259,7 @@ export default function App() {
         <Route
           path="cashier"
           element={
-            cashierAllowed ? (
+            !staff ? (
               <Cashier />
             ) : (
               <Navigate to="/" replace />
