@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Printer, Pencil, Camera, Loader2 } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Printer,
+  ShieldCheck,
+  Pencil,
+  Camera,
+  Loader2,
+} from "lucide-react";
 import api, { errMsg } from "../api";
 import { rs, toMinor, ymd, shrinkImage } from "../utils";
 import { useToast } from "../components/DataPage";
@@ -413,6 +421,17 @@ export default function TradePage({ kind, staff = false }) {
                         }
                       >
                         <Printer size={14} />
+                      </button>
+                    )}
+                    {sale && (
+                      <button
+                        className="btn-ghost"
+                        title="Warranty certificate"
+                        onClick={() =>
+                          window.open(`/warranty/${r._id}`, "_blank")
+                        }
+                      >
+                        <ShieldCheck size={14} />
                       </button>
                     )}
                   </div>

@@ -15,6 +15,7 @@ const P = new Schema(
       validate: Number.isInteger,
     },
     studentPrice: { type: Number, min: 0 }, // minor units
+    warrantyMonths: { type: Number, min: 0, default: 0 },
     qty: { type: Number, default: 0 },
     totalCost: { type: Number, default: 0 }, // weighted-average pool
     minStock: { type: Number, default: 5 },

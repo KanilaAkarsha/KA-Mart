@@ -15,7 +15,7 @@ export default function Invoice() {
     <div className="max-w-2xl mx-auto bg-white p-8 my-4 border">
       <div className="no-print flex gap-2 mb-4">
         <button className="btn" onClick={() => window.print()}>
-          Print / Save as PDF
+          Print bill / Save as PDF
         </button>
       </div>
       <div className="flex justify-between">

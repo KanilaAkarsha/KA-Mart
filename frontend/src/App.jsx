@@ -9,6 +9,7 @@ import Reports from "./pages/Reports";
 import Payables from "./pages/Payables";
 import Settings from "./pages/Settings";
 import Invoice from "./pages/Invoice";
+import Warranty from "./pages/Warranty";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import DataPage from "./components/DataPage";
@@ -90,6 +91,14 @@ export default function App() {
         }
       />
       <Route
+        path="/warranty/:id"
+        element={
+          <Guard>
+            <Warranty />
+          </Guard>
+        }
+      />
+      <Route
         element={
           <Guard>
             <Layout />
@@ -156,6 +165,11 @@ export default function App() {
                         name: "studentPrice",
                         label: "Student price (Rs.)",
                         type: "money",
+                      },
+                      {
+                        name: "warrantyMonths",
+                        label: "Warranty (months)",
+                        type: "number",
                       },
                       {
                         name: "minStock",

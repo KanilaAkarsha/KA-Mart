@@ -39,7 +39,7 @@ r.get(
   wrap(async (req, res) =>
     res.json(
       await Sale.findById(req.params.id)
-        .populate("lines.product", "name sku")
+        .populate("lines.product", "name sku brand warrantyMonths")
         .lean(),
     ),
   ),

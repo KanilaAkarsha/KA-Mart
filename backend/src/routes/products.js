@@ -29,6 +29,7 @@ const body = z.object({
   sku: z.string().min(1),
   sellingPrice: z.number().int().min(0),
   studentPrice: z.number().int().min(0).optional(),
+  warrantyMonths: z.number().int().min(0).max(120).optional(),
   category: z.string().optional(),
   brand: z.string().optional(),
   compatibility: z.string().optional(),
