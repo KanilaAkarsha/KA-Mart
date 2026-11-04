@@ -201,7 +201,7 @@ export default function App() {
                   label: "Qty",
                   total: "int",
                   render: (r) =>
-                    r.qty <= r.minStock ? (
+                    r.isLowStock ? (
                       <span className="text-red-600 font-semibold">
                         {r.qty} (low)
                       </span>

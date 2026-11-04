@@ -41,6 +41,8 @@ r.get(
   wrap(async (req, res) => {
     const { q, category, low, page = 1, limit = 20 } = req.query;
     const f = {};
+    const settings = await Settings.findById("main").lean();
+    const lowStockDefault = settings?.lowStockDefault ?? 5;
     if (q) {
       const rx = new RegExp(
         String(q).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
@@ -50,7 +52,7 @@ r.get(
     }
     if (category) f.category = category;
     let all = await Product.find(f).sort("-createdAt");
-    if (low) all = all.filter((p) => p.qty <= p.minStock); // portable low-stock filter
+    if (low) all = all.filter((p) => p.qty <= lowStockDefault);
     const items = all.slice((page - 1) * limit, page * limit);
     res.json({
       items: items.map((p) => ({
@@ -59,6 +61,7 @@ r.get(
         potentialSales: p.qty * p.sellingPrice,
         inventoryCost: p.totalCost,
         potentialProfit: p.qty * p.sellingPrice - p.totalCost,
+        isLowStock: p.qty <= lowStockDefault,
       })),
       total: all.length,
     });

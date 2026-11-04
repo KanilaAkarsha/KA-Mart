@@ -7,6 +7,7 @@ const {
   Account,
   Ledger,
   DailyClosing,
+  Settings,
 } = require("../models/Trade");
 const Product = require("../models/Product");
 const A = require("../lib/accounting");
@@ -43,8 +44,17 @@ r.get(
   wrap(async (req, res) => {
     const f = rng(req.query);
     const today = day(new Date());
-    const [sales, allSales, purchases, expenses, returns, accts, tx, prods] =
-      await Promise.all([
+    const [
+      sales,
+      allSales,
+      purchases,
+      expenses,
+      returns,
+      accts,
+      tx,
+      prods,
+      settings,
+    ] = await Promise.all([
         Sale.find(f).lean(),
         Sale.find().lean(),
         Purchase.find({ deleted: { $ne: true } }).lean(),
@@ -53,7 +63,9 @@ r.get(
         Account.find().lean(),
         Ledger.find().lean(),
         Product.find().lean(),
+        Settings.findById("main").lean(),
       ]);
+    const lowStockDefault = settings?.lowStockDefault ?? 5;
     const pnl = A.profitAndLoss({ sales, expenses, returns });
     const bal = accts.map((a) => ({
       ...a,
@@ -85,7 +97,7 @@ r.get(
             revenue: pnl.netSales,
             totalProducts: prods.length,
             lowStock: prods
-              .filter((p) => p.qty <= p.minStock)
+              .filter((p) => p.qty <= lowStockDefault)
               .map((p) => ({ _id: p._id, name: p.name, qty: p.qty })),
             salesToday: allSales
               .filter((s) => s.status !== "cancelled" && day(s.date) === today)
@@ -120,7 +132,7 @@ r.get(
               .reduce((a, s) => a + s.total - s.paid, 0),
             totalProducts: prods.length,
             lowStock: prods
-              .filter((p) => p.qty <= p.minStock)
+              .filter((p) => p.qty <= lowStockDefault)
               .map((p) => ({ _id: p._id, name: p.name, qty: p.qty })),
             salesToday: allSales
               .filter((s) => s.status !== "cancelled" && day(s.date) === today)
