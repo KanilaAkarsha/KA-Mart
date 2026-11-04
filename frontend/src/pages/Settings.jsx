@@ -109,6 +109,11 @@ export default function Settings() {
           <div className="text-xs text-slate-500">
             Currency LKR · Timezone Asia/Colombo · Money format Rs. 1,250.00
           </div>
+          <p className="text-xs text-slate-500">
+            Saving this changes existing products that still use the previous
+            default and sets the default for new products. Product-specific
+            stock levels are preserved.
+          </p>
         </div>
         <div className="card space-y-3">
           <div className="font-semibold">Lists used in forms</div>

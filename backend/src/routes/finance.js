@@ -8,6 +8,7 @@ const {
   Settings,
   Loan,
 } = require("../models/Trade");
+const Product = require("../models/Product");
 const F = require("../services/financeService");
 const { accountBalance } = require("../lib/accounting");
 const path = require("path"),
@@ -364,13 +365,20 @@ r.put(
     if (body.sessionTimeoutHours !== undefined && req.user.role !== "admin") {
       return res.status(403).json({ error: "Admin only" });
     }
-    res.json(
-      await Settings.findByIdAndUpdate("main", body, {
-        upsert: true,
-        new: true,
-        setDefaultsOnInsert: true,
-      }),
-    );
+    const previous = await Settings.findById("main").lean();
+    const settings = await Settings.findByIdAndUpdate("main", body, {
+      upsert: true,
+      new: true,
+      setDefaultsOnInsert: true,
+    });
+    if (body.lowStockDefault !== undefined) {
+      const previousDefault = previous?.lowStockDefault ?? 5;
+      await Product.updateMany(
+        { minStock: previousDefault },
+        { $set: { minStock: body.lowStockDefault } },
+      );
+    }
+    res.json(settings);
   }),
 );
 module.exports = r;

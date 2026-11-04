@@ -1,7 +1,7 @@
 const r = require("express").Router();
 const { z } = require("zod");
 const Product = require("../models/Product");
-const { StockMovement } = require("../models/Trade");
+const { Settings, StockMovement } = require("../models/Trade");
 const { adminOnly } = require("../middleware/auth");
 const multer = require("multer"),
   path = require("path"),
@@ -67,9 +67,14 @@ r.get(
 r.post(
   "/",
   adminOnly,
-  wrap(async (req, res) =>
-    res.status(201).json(await Product.create(body.parse(req.body))),
-  ),
+  wrap(async (req, res) => {
+    const data = body.parse(req.body);
+    if (data.minStock === undefined) {
+      const settings = await Settings.findById("main").lean();
+      data.minStock = settings?.lowStockDefault ?? 5;
+    }
+    res.status(201).json(await Product.create(data));
+  }),
 );
 r.put(
   "/:id",
