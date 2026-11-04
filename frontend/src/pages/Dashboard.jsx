@@ -25,7 +25,7 @@ const Card = ({ t, v, hint }) => (
 );
 export default function Dashboard() {
   const P = presets();
-  const [range, setRange] = useState(P["This month"]);
+  const [range, setRange] = useState(P["This year"]);
   const [d, setD] = useState(null);
   const [err, setErr] = useState("");
   useEffect(() => {
