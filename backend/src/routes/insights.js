@@ -66,6 +66,7 @@ r.get(
         Settings.findById("main").lean(),
       ]);
     const lowStockDefault = settings?.lowStockDefault ?? 5;
+    const isStaff = req.user.role === "staff";
     const pnl = A.profitAndLoss({ sales, expenses, returns });
     const bal = accts.map((a) => ({
       ...a,
@@ -92,7 +93,7 @@ r.get(
         ),
       );
     res.json({
-      ...(req.user.role === "staff"
+      ...(isStaff
         ? {
             revenue: pnl.netSales,
             totalProducts: prods.length,
@@ -102,9 +103,6 @@ r.get(
             salesToday: allSales
               .filter((s) => s.status !== "cancelled" && day(s.date) === today)
               .reduce((a, s) => a + s.total, 0),
-            series: Object.values(series).sort((a, b) =>
-              a.date.localeCompare(b.date),
-            ),
             bestSellers: Object.entries(sold)
               .sort((a, b) => b[1] - a[1])
               .slice(0, 5)
