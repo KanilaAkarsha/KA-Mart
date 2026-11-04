@@ -274,6 +274,7 @@ export default function App() {
               endpoint="/customers"
               columns={party}
               fields={pf}
+              editable={!staff}
               rowActions={(r) => <Statement kind="customers" row={r} />}
             />
           }

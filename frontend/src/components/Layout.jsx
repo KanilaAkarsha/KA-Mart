@@ -71,7 +71,7 @@ export default function Layout() {
             .filter(
               ([to]) =>
                 !isStaff ||
-                ["/", "/products"].includes(to) ||
+                ["/", "/products", "/customers"].includes(to) ||
                 (["/sales"].includes(to) && cashierAllowed) ||
                 (to === "/cashier" && !isStaff),
             )
