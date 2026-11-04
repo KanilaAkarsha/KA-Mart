@@ -99,44 +99,48 @@ export default function Dashboard() {
               <div className="text-sm font-semibold mb-2">
                 Sales vs expenses
               </div>
-              <ResponsiveContainer>
-                <LineChart
-                  data={d.series.map((s) => ({
-                    ...s,
-                    sales: s.sales / 100,
-                    expenses: s.expenses / 100,
-                    profit: (s.sales - s.expenses) / 100,
-                  }))}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" fontSize={11} />
-                  <YAxis fontSize={11} />
-                  <Tooltip />
-                  <Legend />
-                  <Line dataKey="sales" stroke="#0f2a52" dot={false} />
-                  <Line dataKey="expenses" stroke="#dc2626" dot={false} />
-                  <Line
-                    dataKey="profit"
-                    name="sales − expenses"
-                    stroke="#16a34a"
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <div className="h-56">
+                <ResponsiveContainer>
+                  <LineChart
+                    data={d.series.map((s) => ({
+                      ...s,
+                      sales: s.sales / 100,
+                      expenses: s.expenses / 100,
+                      profit: (s.sales - s.expenses) / 100,
+                    }))}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" fontSize={11} />
+                    <YAxis fontSize={11} />
+                    <Tooltip />
+                    <Legend />
+                    <Line dataKey="sales" stroke="#0f2a52" dot={false} />
+                    <Line dataKey="expenses" stroke="#dc2626" dot={false} />
+                    <Line
+                      dataKey="profit"
+                      name="sales − expenses"
+                      stroke="#16a34a"
+                      dot={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
             <div className="card h-72">
               <div className="text-sm font-semibold mb-2">
                 Best-selling products (units)
               </div>
-              <ResponsiveContainer>
-                <BarChart data={d.bestSellers}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" fontSize={11} />
-                  <YAxis fontSize={11} allowDecimals={false} />
-                  <Tooltip />
-                  <Bar dataKey="qty" fill="#16a34a" />
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="h-56">
+                <ResponsiveContainer>
+                  <BarChart data={d.bestSellers}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" fontSize={11} />
+                    <YAxis fontSize={11} allowDecimals={false} />
+                    <Tooltip />
+                    <Bar dataKey="qty" fill="#16a34a" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
           {!!d.lowStock.length && (
