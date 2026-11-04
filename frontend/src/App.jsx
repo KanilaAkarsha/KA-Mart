@@ -248,6 +248,10 @@ export default function App() {
           element={<TradePage kind="sales" staff={staff} />}
         />
         <Route
+          path="cashier"
+          element={<TradePage kind="sales" staff cashier />}
+        />
+        <Route
           path="customers"
           element={
             <DataPage

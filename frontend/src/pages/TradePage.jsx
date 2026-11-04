@@ -18,7 +18,7 @@ const Lbl = ({ t, children, cls = "" }) => (
   </label>
 );
 // kind = 'sales' | 'purchases'. Sales choose the price per line; the product's default price is only a suggestion.
-export default function TradePage({ kind, staff = false }) {
+export default function TradePage({ kind, staff = false, cashier = false }) {
   const sale = kind === "sales";
   const [rows, setRows] = useState([]);
   const [prods, setProds] = useState([]);
@@ -248,7 +248,7 @@ export default function TradePage({ kind, staff = false }) {
       {toast}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <h1 className="text-2xl font-bold text-navy">
-          {sale ? "Sales" : "Purchases"}
+          {cashier ? "Cashier" : sale ? "Sales" : "Purchases"}
         </h1>
         <div className="flex items-center gap-3">
           {!sale && (

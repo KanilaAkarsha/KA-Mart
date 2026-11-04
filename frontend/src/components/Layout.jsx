@@ -6,6 +6,7 @@ import {
   Boxes,
   ShoppingCart,
   Receipt,
+  Calculator,
   Users,
   Truck,
   Wallet,
@@ -26,6 +27,7 @@ const nav = [
   ["/inventory", "Inventory", Boxes],
   ["/purchases", "Purchases", ShoppingCart],
   ["/sales", "Sales", Receipt],
+  ["/cashier", "Cashier", Calculator],
   ["/customers", "Customers", Users],
   ["/suppliers", "Suppliers", Truck],
   ["/payables", "Payables & Receivables", Scale],
@@ -65,7 +67,8 @@ export default function Layout() {
         <nav className="px-2 space-y-1">
           {nav
             .filter(
-              ([to]) => !isStaff || ["/", "/products", "/sales"].includes(to),
+              ([to]) =>
+                !isStaff || ["/", "/products", "/sales", "/cashier"].includes(to),
             )
             .map(([to, label, Icon]) => (
               <NavLink
