@@ -62,7 +62,7 @@ export default function Layout() {
           <img
               src="/logo-wordmark-light.png"
               alt="KA Mart - Your One Stop Shopping Store White "
-              className={`object-contain w-40 h-10 mx-auto md:mx-0`}
+              className={`object-contain w-full max-w-[190px] h-auto `}
           />
         </div>
         <nav className="px-2 space-y-1">
