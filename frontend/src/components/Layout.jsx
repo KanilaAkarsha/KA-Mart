@@ -21,7 +21,6 @@ import {
   LogOut,
   Menu,
 } from "lucide-react";
-import BrandLogo from "./BrandLogo";
 const nav = [
   ["/", "Dashboard", LayoutDashboard],
   ["/products", "Products", Package],
@@ -63,7 +62,7 @@ export default function Layout() {
           <img
               src="/logo-wordmark-light.png"
               alt="KA Mart - Your One Stop Shopping Store White "
-              className={`object-contain ${className}`}
+              className={`object-contain w-40 h-10 mx-auto md:mx-0`}
           />
         </div>
         <nav className="px-2 space-y-1">
