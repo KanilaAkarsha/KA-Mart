@@ -63,7 +63,7 @@ export default function Layout() {
           <img
               src="/IMG_0843.PNG"
               alt="KA Mart - Your One Stop Shopping Store"
-              className={`object-contain w-full max-w-[190px] h-[60px]`}
+              className={`w-[190px] h-[60px]`}
           />
         </div>
         <nav className="px-2 space-y-1">
