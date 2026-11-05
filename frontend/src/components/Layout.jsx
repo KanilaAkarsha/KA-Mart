@@ -21,6 +21,7 @@ import {
   LogOut,
   Menu,
 } from "lucide-react";
+import BrandLogo from "./BrandLogo";
 const nav = [
   ["/", "Dashboard", LayoutDashboard],
   ["/products", "Products", Package],
@@ -59,12 +60,7 @@ export default function Layout() {
         className={`${open ? "block" : "hidden"} md:block w-full md:w-60 bg-navy text-white md:min-h-screen shrink-0`}
       >
         <div className="p-5">
-          <div className="text-xl font-bold tracking-wide">
-            KA <span className="text-green-400">MART</span>
-          </div>
-          <div className="text-xs text-slate-300">
-            Your One Stop Shopping Store
-          </div>
+          <BrandLogo className="w-full max-w-[190px] h-auto" />
         </div>
         <nav className="px-2 space-y-1">
           {nav

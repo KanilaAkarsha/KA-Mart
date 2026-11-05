@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../api";
 import { rs, ymd } from "../utils";
+import BrandLogo from "../components/BrandLogo";
 export default function Invoice() {
   const { id } = useParams();
   const [s, setS] = useState(null);
@@ -20,12 +21,10 @@ export default function Invoice() {
       </div>
       <div className="flex justify-between">
         <div>
-          <div className="text-2xl font-bold text-navy">
-            {b.businessName || "KA Mart"}
-          </div>
-          <div className="text-xs text-slate-500">
-            Your One Stop Shopping Store
-          </div>
+          <BrandLogo className="w-56 h-auto" />
+          {b.businessName && b.businessName !== "KA Mart" && (
+            <div className="text-sm font-semibold text-navy">{b.businessName}</div>
+          )}
           <div className="text-sm">
             {b.address}
             <br />

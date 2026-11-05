@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Download, Printer } from "lucide-react";
 import api, { errMsg } from "../api";
 import { rs, presets } from "../utils";
+import BrandLogo from "../components/BrandLogo";
 const NAMES = {
   sales: "Sales",
   purchases: "Purchases",
@@ -92,8 +93,11 @@ export default function Reports({ fixed }) {
           Print
         </button>
       </div>
-      <div className="hidden print:block font-bold">
-        KA Mart — {NAMES[name]} ({r[0]} to {r[1]})
+      <div className="hidden print:flex print:items-center print:gap-4">
+        <BrandLogo className="w-40 h-auto" />
+        <span className="font-bold">
+          {NAMES[name]} ({r[0]} to {r[1]})
+        </span>
       </div>
       {err && <div className="text-red-600 text-sm">{err}</div>}
       <div className="card overflow-x-auto p-0">

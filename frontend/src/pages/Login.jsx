@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api, { errMsg } from "../api";
+import BrandLogo from "../components/BrandLogo";
 export default function Login() {
   const [f, set] = useState({ email: "", password: "" });
   const [err, setErr] = useState("");
@@ -20,12 +21,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-surface p-4">
       <form onSubmit={submit} className="card w-full max-w-sm space-y-3">
         <div className="text-center">
-          <div className="text-2xl font-bold text-navy">
-            KA <span className="text-brand">MART</span>
-          </div>
-          <div className="text-xs text-slate-500">
-            Your One Stop Shopping Store
-          </div>
+          <BrandLogo className="mx-auto w-full max-w-[280px] h-auto" />
         </div>
         {err && <div className="text-sm text-red-600">{err}</div>}
         <input

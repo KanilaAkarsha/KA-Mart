@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../api";
 import { rs, ymd } from "../utils";
+import BrandLogo from "../components/BrandLogo";
 
 const expiry = (date, months) => {
   const d = new Date(date);
@@ -38,12 +39,10 @@ export default function Warranty() {
       </div>
       <div className="flex justify-between gap-4">
         <div>
-          <div className="text-2xl font-bold text-navy">
-            {business.businessName || "KA Mart"}
-          </div>
-          <div className="text-xs text-slate-500">
-            Your One Stop Shopping Store
-          </div>
+          <BrandLogo className="w-56 h-auto" />
+          {business.businessName && business.businessName !== "KA Mart" && (
+            <div className="text-sm font-semibold text-navy">{business.businessName}</div>
+          )}
           <div className="text-sm">
             {business.address}
             <br />
