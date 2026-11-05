@@ -59,8 +59,12 @@ export default function Layout() {
       <aside
         className={`${open ? "block" : "hidden"} md:block w-full md:w-60 bg-navy text-white md:min-h-screen shrink-0`}
       >
-        <div className="pb-5">
-          <BrandLogo className="w-full h-auto" />
+        <div className="p-5">
+          <img
+              src="/logo-wordmark-light.png"
+              alt="KA Mart - Your One Stop Shopping Store White "
+              className={`object-contain ${className}`}
+          />
         </div>
         <nav className="px-2 space-y-1">
           {nav
