@@ -59,8 +59,8 @@ export default function Layout() {
       <aside
         className={`${open ? "block" : "hidden"} md:block w-full md:w-60 bg-navy text-white md:min-h-screen shrink-0`}
       >
-        <div className="p-5">
-          <BrandLogo className="w-full max-w-[190px] h-auto" />
+        <div className="pb-5">
+          <BrandLogo className="w-full h-auto" />
         </div>
         <nav className="px-2 space-y-1">
           {nav
