@@ -23,6 +23,8 @@ export const tokenPayload = (token = localStorage.getItem("kam_token")) => {
     return {};
   }
 };
+export const notifyAuthChange = () =>
+  window.dispatchEvent(new Event("kam-auth-change"));
 export const currentUser = () => {
   let user = {};
   try {

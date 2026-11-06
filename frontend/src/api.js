@@ -1,4 +1,5 @@
 import axios from "axios";
+import { notifyAuthChange } from "./utils";
 const api = axios.create({ baseURL: import.meta.env.VITE_API_URL || "/api" });
 api.interceptors.request.use((c) => {
   const t = localStorage.getItem("kam_token");
@@ -11,6 +12,7 @@ api.interceptors.response.use(
     if (e.response?.status === 401 && !location.pathname.includes("login")) {
       localStorage.removeItem("kam_token");
       localStorage.removeItem("kam_user");
+      notifyAuthChange();
       location.href = "/login";
     }
     return Promise.reject(e);

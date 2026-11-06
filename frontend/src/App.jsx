@@ -22,7 +22,14 @@ import Accounts from "./pages/Accounts";
 import Loans from "./pages/Loans";
 import StaffDashboard from "./pages/StaffDashboard";
 import Cashier from "./pages/Cashier";
-import { rs, ymd, imgUrl, currentUser, tokenPayload } from "./utils";
+import {
+  rs,
+  ymd,
+  imgUrl,
+  currentUser,
+  tokenPayload,
+  notifyAuthChange,
+} from "./utils";
 const tokenExpiry = (token) => {
   const payload = tokenPayload(token);
   return payload.exp ? payload.exp * 1000 : null;
@@ -37,6 +44,7 @@ const Guard = ({ children }) => {
     const expire = () => {
       localStorage.removeItem("kam_token");
       localStorage.removeItem("kam_user");
+      notifyAuthChange();
       setExpired(true);
     };
     const delay = expiry - Date.now();
@@ -68,6 +76,16 @@ const pf = [
   { name: "notes", label: "Notes" },
 ];
 export default function App() {
+  const [, refreshAuth] = useState(0);
+  useEffect(() => {
+    const refresh = () => refreshAuth((v) => v + 1);
+    window.addEventListener("kam-auth-change", refresh);
+    window.addEventListener("storage", refresh);
+    return () => {
+      window.removeEventListener("kam-auth-change", refresh);
+      window.removeEventListener("storage", refresh);
+    };
+  }, []);
   const user = currentUser();
   const staff = user.role === "staff";
   const cashierAllowed = !staff || user.cashierAccess !== false;

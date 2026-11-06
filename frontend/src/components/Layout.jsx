@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
@@ -22,7 +22,7 @@ import {
   Menu,
 } from "lucide-react";
 import BrandLogo from "./BrandLogo";
-import { currentUser } from "../utils";
+import { currentUser, notifyAuthChange } from "../utils";
 const nav = [
   ["/", "Dashboard", LayoutDashboard],
   ["/products", "Products", Package],
@@ -44,6 +44,7 @@ const nav = [
 ];
 export default function Layout() {
   const [open, setOpen] = useState(false);
+  const go = useNavigate();
   const user = currentUser();
   const isStaff = user.role === "staff";
   const cashierAllowed = !isStaff || user.cashierAccess !== false;
@@ -87,7 +88,8 @@ export default function Layout() {
           onClick={() => {
             localStorage.removeItem("kam_token");
             localStorage.removeItem("kam_user");
-            window.location.replace("/login");
+            notifyAuthChange();
+            go("/login", { replace: true });
           }}
           className="m-4 flex items-center gap-2 text-sm text-slate-300 hover:text-white"
         >
