@@ -150,7 +150,13 @@ export default function App() {
                   label: "Student",
                   render: (r) => (r.studentPrice ? rs(r.studentPrice) : "—"),
                 },
-                { key: "qty", label: "Stock", total: "int" },
+                {
+                  key: "qty",
+                  label: "Stock",
+                  total: staff ? undefined : "int",
+                  render: (r) =>
+                    staff && Number(r.qty) === 0 ? "Out of stock" : r.qty,
+                },
               ]}
               fields={
                 staff
@@ -188,6 +194,7 @@ export default function App() {
                       },
                     ]
               }
+              readOnly={staff}
               showTotals={!staff}
               rowActions={
                 !staff &&
