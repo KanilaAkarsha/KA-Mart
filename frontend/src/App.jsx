@@ -174,6 +174,7 @@ export default function App() {
                       },
                     ]
               }
+              showTotals={!staff}
               rowActions={
                 !staff &&
                 ((r, load, show) => (

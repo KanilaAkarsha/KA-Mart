@@ -91,6 +91,7 @@ export default function DataPage({
   readOnly,
   rowActions,
   editable = true,
+  showTotals = true,
 }) {
   const [rows, setRows] = useState([]);
   const [q, setQ] = useState("");
@@ -252,7 +253,10 @@ export default function DataPage({
               ))
             )}
           </tbody>
-          {!loading && rows.length > 0 && columns.some((c) => c.total) && (
+          {!loading &&
+            showTotals &&
+            rows.length > 0 &&
+            columns.some((c) => c.total) && (
             <tfoot>
               <tr className="bg-slate-50 font-semibold text-navy">
                 {columns.map((c, i) => (

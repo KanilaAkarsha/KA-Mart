@@ -1,18 +1,16 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import api, { errMsg } from "../api";
 import BrandLogo from "../components/BrandLogo";
 export default function Login() {
   const [f, set] = useState({ email: "", password: "" });
   const [err, setErr] = useState("");
-  const go = useNavigate();
   const submit = async (e) => {
     e.preventDefault();
     try {
       const r = await api.post("/auth/login", f);
       localStorage.setItem("kam_token", r.data.token);
       localStorage.setItem("kam_user", JSON.stringify(r.data.user));
-      go("/");
+      window.location.replace("/");
     } catch (x) {
       setErr(errMsg(x));
     }
