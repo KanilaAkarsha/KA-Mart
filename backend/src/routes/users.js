@@ -11,14 +11,15 @@ r.post("/", adminOnly, async (req, res, next) => {
         name: z.string().trim().min(1).max(100),
         email: z.string().email(),
         password: z.string().min(10),
+        role: z.enum(["admin", "staff"]).default("staff"),
       })
       .parse(req.body);
     const user = await User.create({
       name: data.name,
       email: data.email,
       passwordHash: await bcrypt.hash(data.password, 12),
-      role: "staff",
-      cashierAccess: true,
+      role: data.role,
+      cashierAccess: data.role === "staff",
     });
     res.status(201).json({
       _id: user._id,
