@@ -92,7 +92,8 @@ export default function Settings() {
     <div className="max-w-3xl space-y-4">
       {toast}
       <h1 className="text-2xl font-bold text-navy">Settings</h1>
-      <form onSubmit={save} className="space-y-4">
+      {isAdmin && (
+        <form onSubmit={save} className="space-y-4">
         <div className="card space-y-3">
           <div className="font-semibold">Business (shown on invoices)</div>
           <div className="grid sm:grid-cols-2 gap-3">
@@ -143,7 +144,8 @@ export default function Settings() {
           </div>
         </div>
         <button className="btn">Save settings</button>
-      </form>
+        </form>
+      )}
       {isAdmin && (
         <div className="card space-y-3">
           <div className="font-semibold">Cashier access</div>

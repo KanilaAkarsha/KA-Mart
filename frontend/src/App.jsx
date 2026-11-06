@@ -357,7 +357,7 @@ export default function App() {
         <Route path="payables" element={<Payables />} />
         <Route path="reports" element={<Reports />} />
         <Route path="cashflow" element={<Reports fixed="cashflow" />} />
-        {!staff && <Route path="settings" element={<Settings />} />}
+        <Route path="settings" element={<Settings />} />
         {!staff && <Route path="pnl" element={<Pnl />} />}
         {!staff && <Route path="closing" element={<Closing />} />}
         <Route path="*" element={<Navigate to="/" replace />} />
