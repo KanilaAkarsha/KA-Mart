@@ -12,6 +12,17 @@ export const imgUrl = (p) =>
   p
     ? (import.meta.env.VITE_API_URL || "/api").replace(/\/api\/?$/, "") + p
     : "";
+export const tokenPayload = (token = localStorage.getItem("kam_token")) => {
+  try {
+    if (!token) return {};
+    const encoded = token.split(".")[1];
+    if (!encoded) return {};
+    const base64 = encoded.replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, "=")));
+  } catch {
+    return {};
+  }
+};
 export const currentUser = () => {
   let user = {};
   try {
@@ -19,13 +30,8 @@ export const currentUser = () => {
   } catch {
     user = {};
   }
-  try {
-    const token = localStorage.getItem("kam_token");
-    const payload = token ? JSON.parse(atob(token.split(".")[1])) : {};
-    return payload.role ? { ...user, role: payload.role } : user;
-  } catch {
-    return user;
-  }
+  const payload = tokenPayload();
+  return payload.role ? { ...user, role: payload.role } : user;
 };
 export const toMinor = (v) => Math.round(Number(v || 0) * 100);
 export const ymd = (d) =>

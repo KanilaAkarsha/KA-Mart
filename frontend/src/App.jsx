@@ -22,14 +22,10 @@ import Accounts from "./pages/Accounts";
 import Loans from "./pages/Loans";
 import StaffDashboard from "./pages/StaffDashboard";
 import Cashier from "./pages/Cashier";
-import { rs, ymd, imgUrl, currentUser } from "./utils";
+import { rs, ymd, imgUrl, currentUser, tokenPayload } from "./utils";
 const tokenExpiry = (token) => {
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    return payload.exp ? payload.exp * 1000 : null;
-  } catch {
-    return null;
-  }
+  const payload = tokenPayload(token);
+  return payload.exp ? payload.exp * 1000 : null;
 };
 const Guard = ({ children }) => {
   const [expired, setExpired] = useState(false);
