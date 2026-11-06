@@ -22,6 +22,7 @@ import {
   Menu,
 } from "lucide-react";
 import BrandLogo from "./BrandLogo";
+import { currentUser } from "../utils";
 const nav = [
   ["/", "Dashboard", LayoutDashboard],
   ["/products", "Products", Package],
@@ -41,17 +42,10 @@ const nav = [
   ["/closing", "Daily Closing", ClipboardCheck],
   ["/settings", "Settings", Settings],
 ];
-const getUser = () => {
-  try {
-    return JSON.parse(localStorage.getItem("kam_user") || "{}");
-  } catch {
-    return {};
-  }
-};
 export default function Layout() {
   const [open, setOpen] = useState(false);
   const go = useNavigate();
-  const user = getUser();
+  const user = currentUser();
   const isStaff = user.role === "staff";
   const cashierAllowed = !isStaff || user.cashierAccess !== false;
   return (

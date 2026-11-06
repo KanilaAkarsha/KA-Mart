@@ -12,6 +12,21 @@ export const imgUrl = (p) =>
   p
     ? (import.meta.env.VITE_API_URL || "/api").replace(/\/api\/?$/, "") + p
     : "";
+export const currentUser = () => {
+  let user = {};
+  try {
+    user = JSON.parse(localStorage.getItem("kam_user") || "{}");
+  } catch {
+    user = {};
+  }
+  try {
+    const token = localStorage.getItem("kam_token");
+    const payload = token ? JSON.parse(atob(token.split(".")[1])) : {};
+    return payload.role ? { ...user, role: payload.role } : user;
+  } catch {
+    return user;
+  }
+};
 export const toMinor = (v) => Math.round(Number(v || 0) * 100);
 export const ymd = (d) =>
   new Date(d).toLocaleDateString("en-CA", { timeZone: "Asia/Colombo" });

@@ -1,26 +1,20 @@
 import { useEffect, useState } from "react";
 import api, { errMsg } from "../api";
 import { useToast } from "../components/DataPage";
+import { currentUser } from "../utils";
 const LISTS = [
   ["expenseCategories", "Expense categories"],
   ["productCategories", "Product categories"],
   ["paymentMethods", "Payment methods"],
   ["salesChannels", "Sales channels"],
 ];
-const getUser = () => {
-  try {
-    return JSON.parse(localStorage.getItem("kam_user") || "{}");
-  } catch {
-    return {};
-  }
-};
 export default function Settings() {
   const [s, setS] = useState(null);
   const [txt, setTxt] = useState({});
   const [pw, setPw] = useState({ current: "", next: "" });
   const [users, setUsers] = useState([]);
   const [toast, show] = useToast();
-  const isAdmin = getUser().role === "admin";
+  const isAdmin = currentUser().role === "admin";
   useEffect(() => {
     api.get("/settings").then((r) => {
       setS(r.data);

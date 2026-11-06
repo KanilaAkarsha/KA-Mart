@@ -22,20 +22,13 @@ import Accounts from "./pages/Accounts";
 import Loans from "./pages/Loans";
 import StaffDashboard from "./pages/StaffDashboard";
 import Cashier from "./pages/Cashier";
-import { rs, ymd, imgUrl } from "./utils";
+import { rs, ymd, imgUrl, currentUser } from "./utils";
 const tokenExpiry = (token) => {
   try {
     const payload = JSON.parse(atob(token.split(".")[1]));
     return payload.exp ? payload.exp * 1000 : null;
   } catch {
     return null;
-  }
-};
-const currentUser = () => {
-  try {
-    return JSON.parse(localStorage.getItem("kam_user") || "{}");
-  } catch {
-    return {};
   }
 };
 const Guard = ({ children }) => {
