@@ -96,6 +96,7 @@ r.get(
       ...(isStaff
         ? {
             revenue: pnl.netSales,
+            netProfit: pnl.netProfit,
             totalProducts: prods.length,
             lowStock: prods
               .filter((p) => p.qty <= lowStockDefault)

@@ -28,6 +28,12 @@ export default function StaffDashboard() {
           <div className="text-xl font-bold text-navy">{rs(data.revenue)}</div>
         </div>
         <div className="card">
+          <div className="text-xs text-slate-500">Net profit</div>
+          <div className="text-xl font-bold text-navy">
+            {rs(data.netProfit)}
+          </div>
+        </div>
+        <div className="card">
           <div className="text-xs text-slate-500">Products</div>
           <div className="text-xl font-bold text-navy">
             {data.totalProducts}
