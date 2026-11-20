@@ -352,7 +352,12 @@ export default function TradePage({ kind, staff = false, cashier = false }) {
                             }
                           } catch (er) {
                             opened?.close();
-                            show(errMsg(er), true);
+                            show(
+                              er.response?.status === 404
+                                ? "Bill file is missing from storage"
+                                : errMsg(er),
+                              true,
+                            );
                           }
                         }}
                       >
