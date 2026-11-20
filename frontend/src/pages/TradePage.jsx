@@ -350,9 +350,9 @@ export default function TradePage({ kind, staff = false, cashier = false }) {
                               a.click();
                               window.setTimeout(() => URL.revokeObjectURL(url), 60000);
                             }
-                          } catch {
+                          } catch (er) {
                             opened?.close();
-                            show("Could not open the bill", true);
+                            show(errMsg(er), true);
                           }
                         }}
                       >

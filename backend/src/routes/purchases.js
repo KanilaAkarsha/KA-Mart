@@ -90,12 +90,15 @@ r.get(
   wrap(async (req, res) => {
     const p = await Purchase.findById(req.params.id);
     if (!p?.billFile) return res.status(404).json({ error: "No bill saved" });
+    const file = path.join(PRIV, path.basename(p.billFile));
+    if (!fs.existsSync(file))
+      return res.status(404).json({ error: "Bill file is missing from storage" });
     res.set({
       "X-Content-Type-Options": "nosniff",
       "Content-Type": MIME[path.extname(p.billFile).slice(1)],
       "Content-Disposition": "inline",
     });
-    res.sendFile(path.join(PRIV, path.basename(p.billFile)));
+    res.sendFile(file);
   }),
 );
 r.get(
