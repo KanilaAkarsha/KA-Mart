@@ -51,6 +51,7 @@ r.get(
       f.$or = [{ name: rx }, { sku: rx }, { brand: rx }];
     }
     if (category) f.category = category;
+    f.deleted = { $ne: true };
     let all = await Product.find(f).sort("-createdAt");
     if (low) all = all.filter((p) => p.qty <= lowStockDefault);
     const items = all.slice((page - 1) * limit, page * limit);
@@ -91,6 +92,26 @@ r.put(
       ),
     ),
   ),
+);
+r.delete(
+  "/:id([0-9a-f]{24})",
+  adminOnly,
+  wrap(async (req, res) => {
+    const p = await Product.findById(req.params.id);
+    if (!p) throw new Error("Product not found");
+    if (p.deleted) throw new Error("Product is already deleted");
+    if (p.qty !== 0) {
+      throw new Error(
+        "Cannot delete: this product still has stock. Adjust its stock to zero first.",
+      );
+    }
+    p.deleted = true;
+    p.active = false;
+    p.deletedAt = new Date();
+    p.deleteReason = z.string().max(200).optional().parse(req.body?.reason);
+    await p.save();
+    res.json({ deleted: true, product: p });
+  }),
 );
 r.post(
   "/:id/adjust",

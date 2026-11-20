@@ -47,6 +47,9 @@ const create = (b, { key } = {}) =>
       { session: s },
     );
     for (const l of calc.lines) {
+      const prod = await Product.findById(l.product).session(s);
+      if (!prod) throw new Error("Product not found");
+      if (!prod.active || prod.deleted) throw new Error("Product is deleted");
       // transport goes into inventory cost, never into expenses (no double counting)
       await Product.updateOne(
         { _id: l.product },

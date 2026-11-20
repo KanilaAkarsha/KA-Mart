@@ -11,6 +11,7 @@ exports.createSale = (b, { key, allowNegative = false } = {}) =>
       // unitPrice is chosen per sale; the product's default price is never changed
       const prod = await Product.findById(l.product).session(s);
       if (!prod) throw new Error("Product not found");
+      if (!prod.active || prod.deleted) throw new Error("Product is deleted");
       const out = issueStock(
         { qty: prod.qty, totalCost: prod.totalCost },
         l.qty,

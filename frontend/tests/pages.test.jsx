@@ -102,6 +102,10 @@ describe("pages render with real data", () => {
     expect(screen.getAllByText("Delete").length).toBeGreaterThan(0);
     expect(screen.getByText("Show deleted")).toBeTruthy();
   });
+  it("admin products page has Delete action", async () => {
+    await show("/products");
+    expect(screen.getAllByText("Delete").length).toBeGreaterThan(0);
+  });
   it("new purchase form has Scan bill, date and notes", async () => {
     await show("/purchases");
     fireEvent.click(screen.getByText(/New purchase/));

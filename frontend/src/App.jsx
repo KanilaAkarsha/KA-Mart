@@ -3,6 +3,7 @@ import {
   Statement,
   InventoryActions,
   ProductImage,
+  DeleteProduct,
   ReceiptButtons,
 } from "./components/Extras";
 import Reports from "./pages/Reports";
@@ -199,7 +200,10 @@ export default function App() {
               rowActions={
                 !staff &&
                 ((r, load, show) => (
-                  <ProductImage row={r} reload={load} show={show} />
+                  <>
+                    <ProductImage row={r} reload={load} show={show} />
+                    <DeleteProduct row={r} reload={load} show={show} />
+                  </>
                 ))
               }
             />

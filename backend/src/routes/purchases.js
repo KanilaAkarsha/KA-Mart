@@ -48,7 +48,7 @@ r.post(
     const parsed = parseBillJson(await extractBill(req.file.buffer, MIME[ext]));
     const out = matchBill(
       parsed,
-      await Product.find({ active: true }).lean(),
+      await Product.find({ active: true, deleted: { $ne: true } }).lean(),
       await Supplier.find().lean(),
     );
     if (out.billNumber && out.supplier) {

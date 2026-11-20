@@ -211,6 +211,29 @@ export function ProductImage({ row, reload, show }) {
   );
 }
 
+export function DeleteProduct({ row, reload, show }) {
+  const remove = async () => {
+    if (
+      !window.confirm(
+        `Delete product "${row.name}"?\n\nThis hides the product but keeps past transaction history.`,
+      )
+    )
+      return;
+    try {
+      await api.delete(`/products/${row._id}`);
+      show("Product deleted");
+      reload();
+    } catch (e) {
+      show(errMsg(e), true);
+    }
+  };
+  return (
+    <button className="btn-ghost text-red-600" onClick={remove}>
+      Delete
+    </button>
+  );
+}
+
 export function ReceiptButtons({ row, reload, show }) {
   // receipts are only fetched with the login token
   const view = async () => {

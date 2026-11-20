@@ -20,6 +20,9 @@ const P = new Schema(
     totalCost: { type: Number, default: 0 }, // weighted-average pool
     minStock: { type: Number, default: 5 },
     active: { type: Boolean, default: true },
+    deleted: { type: Boolean, default: false },
+    deletedAt: Date,
+    deleteReason: String,
     image: String,
   },
   { timestamps: true },
