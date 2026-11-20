@@ -332,13 +332,26 @@ export default function TradePage({ kind, staff = false, cashier = false }) {
                       <button
                         className="btn-ghost"
                         onClick={async () => {
+                          const opened = window.open("", "_blank");
                           try {
                             const x = await api.get(
                               `/purchases/${r._id}/bill`,
                               { responseType: "blob" },
                             );
-                            window.open(URL.createObjectURL(x.data), "_blank");
+                            const url = URL.createObjectURL(x.data);
+                            if (opened) {
+                              opened.location.href = url;
+                              window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+                            } else {
+                              const a = document.createElement("a");
+                              a.href = url;
+                              a.target = "_blank";
+                              a.rel = "noopener";
+                              a.click();
+                              window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+                            }
                           } catch {
+                            opened?.close();
                             show("Could not open the bill", true);
                           }
                         }}
