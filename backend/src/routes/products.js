@@ -39,7 +39,9 @@ const body = z.object({
 r.get(
   "/",
   wrap(async (req, res) => {
-    const { q, category, low, page = 1, limit = 20 } = req.query;
+    const { q, category, low, page = 1, limit = 500 } = req.query;
+    const safePage = Math.max(1, Number(page) || 1);
+    const safeLimit = Math.min(500, Math.max(1, Number(limit) || 500));
     const f = {};
     const settings = await Settings.findById("main").lean();
     const lowStockDefault = settings?.lowStockDefault ?? 5;
@@ -54,7 +56,7 @@ r.get(
     f.deleted = { $ne: true };
     let all = await Product.find(f).sort("-createdAt");
     if (low) all = all.filter((p) => p.qty <= lowStockDefault);
-    const items = all.slice((page - 1) * limit, page * limit);
+    const items = all.slice((safePage - 1) * safeLimit, safePage * safeLimit);
     res.json({
       items: items.map((p) => ({
         ...p.toObject(),
